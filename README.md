@@ -10,3 +10,13 @@ This project is inspired by codeigniter database active record class. Feel free 
 You can use this class in many ways, i'm gonna show you one by one. Using a demo table.
 
 ### Select
+
+### Get
+
+Get data from table
+
+```php
+require 'database.php';
+
+$db = new Database($host, $user);
+```
