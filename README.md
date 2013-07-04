@@ -36,6 +36,7 @@ You can use this class in many ways, i'm gonna show you one by one. Using a demo
 
 ### GET
 Get data from table
+Code: `$db->get($table_name)`
 ```php
 // Equal to "SELECT * FROM `student`;"
 $data = $db->get('student');
@@ -63,7 +64,7 @@ $data = $db->get('student');
 Add condition to fetch data you desire.
 
 ##### Regular where
-Code: `$db->like($field, $value)`
+Code: `$db->where($field, $value)`
 ```php
 // Equal to "... WHERE `first_name` = 'John' ..."
 $db->where('first_name', 'John');
@@ -71,8 +72,8 @@ $db->where('first_name', 'John');
 $data = $db->get('student');
 ```
 ##### Where in
+Code: `$db->where($field, array())`
 ```php
-Code: `$db->like($field, array())`
 // Equal to "... WHERE `last_name` IN ('Sofyan', 'Dewi', 'Alya') ..."
 $db->where('last_name', array('Sofyan', 'Dewi', 'Alya'));
 
@@ -87,6 +88,7 @@ $db->like('first_name', 'sari');
 $data = $db->get('student');
 ```
 ##### Where regexp
+Code: `$db->regexp($field, $pattern)`
 ```php
 // Equal to "... WHERE `first_name` REGEXP '^J' ..."
 $db->regexp('first_name', '/^J/');

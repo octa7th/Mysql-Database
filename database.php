@@ -568,12 +568,10 @@ class Database
 	public function result($result, $ref = MYSQLI_ASSOC)
 	{
 		$array = array();
-
 		while ($row = $result->fetch_array($ref))
 		{
 			$array[] = $row;
 		}
-
 		return $array;
 	}
 
@@ -601,6 +599,13 @@ class Database
 		}
 	}
 
+	/**
+	 * Helper function to trim data
+	 * This will remove all unnecessary whitespace inside variable
+	 * 
+	 * @param mixed $data value that you want to trim (reference)
+	 * @return trimmed data
+	 */
 	public static function trim(&$data)
 	{
 		if(is_array($data))
@@ -620,6 +625,14 @@ class Database
 		}	
 	}
 
+	/**
+	 * Function to get / set current status of this object
+	 * I'm using this for error handling
+	 * Status display as an array, status code and status text 
+	 *
+	 * @param number $set Status to set
+	 * @return current status of this object
+	 */
 	public function status($set = NULL)
 	{
 		if(is_integer($set))
@@ -676,6 +689,12 @@ class Database
 		}
 	}
 
+	/**
+	 * Helper function to check number
+	 * This also convert string that contains valid number
+	 *
+	 * @param mixed $value String or number to check
+	 */
 	protected function _is_number(&$value)
 	{
 		$check_number = FALSE;
@@ -689,13 +708,14 @@ class Database
 			$value += 0;
 			$check_number = TRUE;
 		}
-
 		return $check_number;
 	}
 
+	/**
+	 * Reference is required for PHP 5.3+
+	 */
 	protected function _ref_values($array)
 	{
-		//Reference is required for PHP 5.3+
 		if (strnatcmp(phpversion(),'5.3') >= 0)
 		{
 			$refs = array();
@@ -708,6 +728,10 @@ class Database
 		return $array;
 	}
 
+	/**
+	 * Destruct magic method.
+	 * Close mysqli connection if there's no error
+	 */
 	public function __destruct() 
 	{
 		if($this->status() === 0) $this->_mysql->close();
