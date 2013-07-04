@@ -38,63 +38,98 @@ You can use this class in many ways, i'm gonna show you one by one. Using a demo
 Get data from table
 Code: `$db->get($table_name)`
 ```php
-// Equal to "SELECT * FROM `student`;"
+// Equals to "SELECT * FROM `student`;"
 $data = $db->get('student');
 ```
+
+
 ### SELECT
 Select field in table that you want to get.
+Code: `$db->select($field [,$alias] [,$table_name])`
 
 ##### Regular select
 Code: `$db->select($field_name)`
 ```php
-// Equal to "SELECT `first_name`, `last_name` ..."
+// Equals to "SELECT `first_name`, `last_name` ..."
 $db->select('first_name, last_name');
 
 $data = $db->get('student');
 ```
+
+
 ##### Select as
-Code: `$db->select($field_name, $desire_name)`
+Code: `$db->select($field_name, $alias_name)`
 ```php
-// Equal to "SELECT `first_name` AS 'fname', `last_name` AS 'lname' ..."
+// Equals to "SELECT `first_name` AS 'fname', `last_name` AS 'lname' ..."
 $db->select('first_name, last_name', 'fname, lname');
 
 $data = $db->get('student');
 ```
+
+
 ### WHERE
 Add condition to fetch data you desire.
 
 ##### Regular where
 Code: `$db->where($field, $value)`
 ```php
-// Equal to "... WHERE `first_name` = 'John' ..."
+// Equals to "... WHERE `first_name` = 'John' ..."
 $db->where('first_name', 'John');
 
 $data = $db->get('student');
 ```
+
+
 ##### Where in
 Code: `$db->where($field, array())`
 ```php
-// Equal to "... WHERE `last_name` IN ('Sofyan', 'Dewi', 'Alya') ..."
+// Equals to "... WHERE `last_name` IN ('Sofyan', 'Dewi', 'Alya') ..."
 $db->where('last_name', array('Sofyan', 'Dewi', 'Alya'));
 
 $data = $db->get('student');
 ```
+
+
 ##### Where like
 Code: `$db->like($field, $value)`
 ```php
-// Equal to "... WHERE `first_name` LIKE '%sari%' ..."
+// Equals to "... WHERE `first_name` LIKE '%sari%' ..."
 $db->like('first_name', 'sari');
 
 $data = $db->get('student');
 ```
+
+
 ##### Where regexp
 Code: `$db->regexp($field, $pattern)`
 ```php
-// Equal to "... WHERE `first_name` REGEXP '^J' ..."
+// Equals to "... WHERE `first_name` REGEXP '^J' ..."
 $db->regexp('first_name', '/^J/');
 
 $data = $db->get('student');
 ```
+
+
+### ORDER / SORT
+Order data by field name
+Code: `$db->order($field [,$direction] [,$table_name])` OR `$db->sort($field [,$direction] [,$table_name])`
+Both will get same result
+```php
+// Equals to "... ORDER BY `first_name` DESC ..."
+$db->sort('first_name', 'DESC');
+
+$data = $db-get('student');
+```
+
+
+### LIMIT
+Add limit when fetching data
+Code: `$db->limit([$start] [,$amount])`
+```php
+// Equals to "... LIMI"
+```
+
+
 ## Chaining Method
 Guess what? Almost all method in this class support chaining method. Exception for 'get', 'insert', 'update', and 'delete' because those method return data / query result.
 
