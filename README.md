@@ -15,6 +15,24 @@ This project is inspired by codeigniter database active record class. Feel free 
 
 ## Method
 You can use this class in many ways, i'm gonna show you one by one. Using a demo table.
+##### student
+|id |first_name|last_name|school_id|
+|---|----------|---------|:-------:|
+|1  |Muhammad  |Sofyan   |26       |
+|2  |John      |Doe      |15       |
+|3  |Jules     |Doe      |22       |
+|4  |Sari      |Dewi     |22       |
+|5  |John      |Lennon   |27       |
+|5  |John      |Lennon   |27       |
+
+##### school
+|id |name                |address   |
+|---|--------------------|----------|
+|26 |High School 26      |Utan Kayu |
+|15 |High School 15      |Rawamangun|
+|22 |Elementary School 22|Pramuka   |
+|24 |High School 24      |Kayumanis |
+|27 |Middle School 27    |Tegalan   |
 
 ### GET
 Get data from table
@@ -69,4 +87,24 @@ $data = $db->get('table1');
 $db->regexp('column1', 'pattern');
 
 $data = $db->get('table1');
+```
+## Chaining Method
+Guess what? Almost all method in this class support chaining method. Exception for 'get', 'insert', 'update', and 'delete' because those method return data / query result.
+
+So rather than...
+```php
+$db->select('column1, column2');
+$db->select('column3');
+$db->where('column1', 'value1');
+$db->like('column2', 'value2');
+
+$data = $db->get('table1');
+```
+You can simply write your code like this.
+```php
+$data = $db->select('column1, column2')
+	->select('column3')
+	->where('column1', 'value1')
+	->like('column2', 'value2')
+	->get('table1');
 ```
