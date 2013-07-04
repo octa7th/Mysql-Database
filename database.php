@@ -9,7 +9,7 @@
  * @copyright Copyright (c) 2013
  * @license   http://opensource.org/licenses/gpl-3.0.html GNU Public License
  * @version   0.9
- **/
+ */
 
 class Database
 {
@@ -19,11 +19,35 @@ class Database
 	 */
 	private $_mysql;
 
+	/**
+	 * Last executed query
+	 * @var string
+	 */
+	public $last_query;
+
+	/**
+	 * WHERE condition storage
+	 * @var array
+	 */
 	// private $_where;
 
+	/**
+	 * WHERE IN condition storage
+	 * @var array
+	 */
 	// private $_where_in;
 
+	/**
+	 * SELECT fields storage
+	 * @var array
+	 */
 	// private $_select;
+
+	/**
+	 * JOIN table and reference storage
+	 * @var array
+	 */
+	// private $_join;
 	
 	private $_setting;
 
@@ -33,6 +57,7 @@ class Database
 	 * 0 = OK / Everything works fine
 	 * 1 = Database connect error
 	 * 2 = Parameter construct is incorrect
+	 * 3 = Unknown error / Query Error
 	 */
 	private $_status;
 	
@@ -172,6 +197,18 @@ class Database
 		return $this;
 	}
 
+	public function where_in()
+	{
+		$params = func_get_args();
+
+		if(count($params) === 2)
+		{
+			$this->_where_in[] = $params;
+		}
+
+		return $this;
+	}
+
 	public function like()
 	{
 		$params = func_get_args();
@@ -197,13 +234,6 @@ class Database
 			call_user_func_array(array($this, 'where'), $params);
 		}
 		return $this;
-
-	}
-
-	public function sort()
-	{
-		$params = func_get_args();
-		return call_user_func_array(array($this, 'order'), $params);
 	}
 
 	public function order($by, $direction = 'ASC', $table_name = NULL)
@@ -215,21 +245,23 @@ class Database
 		return $this;
 	}
 
+	public function sort()
+	{
+		$params = func_get_args();
+		return call_user_func_array(array($this, 'order'), $params);
+	}
+
+	/**
+	 * Function to create a limit of data rows
+	 * if parameters is empty, as default limit data up to 1000 rows
+	 * 
+	 * @param number $start Start position to fetch data (pointer)
+	 * @param number $count Amount of row(s) to fetch
+	 * @return object $this this object for chaining purpose
+	 */
 	public function limit($start = 0, $count = 1000)
 	{
 		$this->_limit = "$start, $count";
-		return $this;
-	}
-
-	public function where_in()
-	{
-		$params = func_get_args();
-
-		if(count($params) === 2)
-		{
-			$this->_where_in[] = $params;
-		}
-
 		return $this;
 	}
 
@@ -276,9 +308,9 @@ class Database
 	{
 		if(is_string($table_name))
 		{
-			$this->_table = $table_name;
-			$query        = $this->_build_get_query($table_name);
-			$this->_sql   = $query;
+			$this->_table     = $table_name;
+			$query            = $this->_build_get_query($table_name);
+			$this->last_query = $query;
 			
 			if($this->setting('prepare'))
 			{
@@ -290,14 +322,14 @@ class Database
 						array_unshift($params, $this->_param_type);
 						call_user_func_array(array($stmt, 'bind_param'), $this->_ref_values($params));
 					}
-					if($this->setting('autoreset')) $this->_reset();
+					if($this->setting('autoreset')) $this->reset();
 					$stmt->execute();
 					return $this->_dynamic_bind_results($stmt);
 				}
 				else
 				{
 					$this->status(3);
-					if($this->setting('autoreset')) $this->_reset();
+					if($this->setting('autoreset')) $this->reset();
 					return array();
 				}
 			}
@@ -305,13 +337,13 @@ class Database
 			{
 				if($result = $this->_mysql->query($query))
 				{
-					if($this->setting('autoreset')) $this->_reset();
+					if($this->setting('autoreset')) $this->reset();
 					return $this->result($result);
 				}
 				else
 				{
 					$this->status(3);
-					if($this->setting('autoreset')) $this->_reset();
+					if($this->setting('autoreset')) $this->reset();
 					return array();
 				}
 			}
@@ -517,7 +549,7 @@ class Database
 		return $order;	
 	}
 
-	protected function _reset()
+	public function reset()
 	{
 		return;
 		$this->_where       = array();
@@ -532,12 +564,12 @@ class Database
 	}
 
 	/**
-	* This helper method takes care of prepared statements' "bind_result method
-	* , when the number of variables to pass is unknown.
-	*
-	* @param object $stmt Equal to the prepared statement object.
-	* @return array The results of the SQL fetch.
-	*/
+	 * This helper method takes care of prepared statements' "bind_result" method
+	 * , when the number of variables to pass is unknown.
+	 *
+	 * @param object $stmt Equal to the prepared statement object.
+	 * @return array The results of the SQL fetch.
+	 */
 	protected function _dynamic_bind_results($stmt) 
 	{
 		$parameters = array();
@@ -576,10 +608,10 @@ class Database
 	}
 
 	/**
-	* Escape harmful characters which might affect a query.
-	*
-	* @param mixed $str The mixed to escape.
-	*/
+	 * Escape harmful characters which might affect a query.
+	 *
+	 * @param mixed $str The mixed to escape.
+	 */
 	public function escape(&$data)
 	{
 		if(is_array($data))
@@ -661,14 +693,14 @@ class Database
 	}
 
 	/**
-	* This method is needed for prepared statements. They require
-	* the data type of the field to be bound with "i" s", etc.
-	* This function takes the input, determines what type it is,
-	* and then updates the param_type.
-	*
-	* @param mixed $item Input to determine the type.
-	* @return string The joined parameter types.
-	*/
+	 * This method is needed for prepared statements. They require
+	 * the data type of the field to be bound with "i" s", etc.
+	 * This function takes the input, determines what type it is,
+	 * and then updates the param_type.
+	 *
+	 * @param mixed $item Input to determine the type.
+	 * @return string The joined parameter types.
+	 */
 	protected function _determine_type($item) 
 	{
 		switch (gettype($item))
