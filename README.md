@@ -22,8 +22,8 @@ You can use this class in many ways, i'm gonna show you one by one. Using a demo
 |2  |John      |Doe      |15       |
 |3  |Jules     |Doe      |22       |
 |4  |Sari      |Dewi     |22       |
-|5  |John      |Lennon   |27       |
-|5  |John      |Lennon   |27       |
+|5  |Sarinah   |Alya     |23       |
+|6  |John      |Lennon   |27       |
 
 ##### school
 |id |name                |address   |
@@ -37,74 +37,79 @@ You can use this class in many ways, i'm gonna show you one by one. Using a demo
 ### GET
 Get data from table
 ```php
-// Equal to "SELECT * FROM `table1`;"
-$data = $db->get('table1');
+// Equal to "SELECT * FROM `student`;"
+$data = $db->get('student');
 ```
 ### SELECT
 Select field in table that you want to get.
 
 ##### Regular select
+Code: `$db->select($field_name)`
 ```php
-// Equal to "SELECT `column1`, `column2` ..."
-$db->select('column1, column2');
+// Equal to "SELECT `first_name`, `last_name` ..."
+$db->select('first_name, last_name');
 
-$data = $db->get('table1');
+$data = $db->get('student');
 ```
 ##### Select as
+Code: `$db->select($field_name, $desire_name)`
 ```php
-// Equal to "SELECT `column1` AS 'col1', `column2` AS 'col2' ..."
-$db->select('column1, column2', 'col1, col2');
+// Equal to "SELECT `first_name` AS 'fname', `last_name` AS 'lname' ..."
+$db->select('first_name, last_name', 'fname, lname');
 
-$data = $db->get('table1');
+$data = $db->get('student');
 ```
 ### WHERE
 Add condition to fetch data you desire.
 
 ##### Regular where
+Code: `$db->like($field, $value)`
 ```php
-// Equal to "... WHERE `column1` = 'value1' ..."
-$db->where('column1', 'value1');
+// Equal to "... WHERE `first_name` = 'John' ..."
+$db->where('first_name', 'John');
 
-$data = $db->get('table1');
+$data = $db->get('student');
 ```
 ##### Where in
 ```php
-// Equal to "... WHERE `column1` IN ('value1', 'value2', 'value3') ..."
-$db->where('column1', array('value1', 'value2', 'value3'));
+Code: `$db->like($field, array())`
+// Equal to "... WHERE `last_name` IN ('Sofyan', 'Dewi', 'Alya') ..."
+$db->where('last_name', array('Sofyan', 'Dewi', 'Alya'));
 
-$data = $db->get('table1');
+$data = $db->get('student');
 ```
 ##### Where like
+Code: `$db->like($field, $value)`
 ```php
-// Equal to "... WHERE `column1` LIKE '%value1%' ..."
-$db->like('column1', 'value1');
+// Equal to "... WHERE `first_name` LIKE '%sari%' ..."
+$db->like('first_name', 'sari');
 
-$data = $db->get('table1');
+$data = $db->get('student');
 ```
 ##### Where regexp
 ```php
-// Equal to "... WHERE `column1` REGEXP 'pattern' ..."
-$db->regexp('column1', 'pattern');
+// Equal to "... WHERE `first_name` REGEXP '^J' ..."
+$db->regexp('first_name', '/^J/');
 
-$data = $db->get('table1');
+$data = $db->get('student');
 ```
 ## Chaining Method
 Guess what? Almost all method in this class support chaining method. Exception for 'get', 'insert', 'update', and 'delete' because those method return data / query result.
 
 So rather than...
 ```php
-$db->select('column1, column2');
-$db->select('column3');
-$db->where('column1', 'value1');
-$db->like('column2', 'value2');
+$db->select('first_name, last_name');
+$db->select('school_id');
+$db->where('first_name', 'John');
+$db->like('last_name', 'Doe');
 
-$data = $db->get('table1');
+$data = $db->get('student');
 ```
-You can simply write your code like this.
+You can simply write your code like this:
 ```php
-$data = $db->select('column1, column2')
-	->select('column3')
-	->where('column1', 'value1')
-	->like('column2', 'value2')
-	->get('table1');
+$data = $db->select('first_name, last_name')
+	->select('school_id')
+	->where('first_name', 'John')
+	->like('last_name', 'Doe')
+	->get('student');
 ```
