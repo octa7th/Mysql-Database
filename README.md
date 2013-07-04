@@ -1,17 +1,5 @@
 # Mysql Database Class
-
-A dead simple mysqli wrapper for PHP to access mysql database.
-
-This project is inspired by codeigniter database active record class. Feel free to contribute.
-
-
-## Method
-
-You can use this class in many ways, i'm gonna show you one by one. Using a demo table.
-
-### GET
-
-Get data from table
+A dead simple and powerfull mysqli wrapper for PHP to access mysql database. All you need is to call the file in your application. And create a new object using this Database class.
 ```php
 require 'database.php';
 
@@ -21,11 +9,20 @@ $password = 'password';
 $db_name  = 'database_name';
 $port     = 3306; // Optional
 
-$db   = new Database($host, $user, $password, $db_name, $port);
-$data = $db->get('table1'); // Equal to "SELECT * FROM `table1`;"
+$db = new Database($host, $user, $password, $db_name, $port);
+```
+This project is inspired by codeigniter database active record class. Feel free to contribute.
+
+## Method
+You can use this class in many ways, i'm gonna show you one by one. Using a demo table.
+
+### GET
+Get data from table
+```php
+// Equal to "SELECT * FROM `table1`;"
+$data = $db->get('table1');
 ```
 ### SELECT
-
 Select field in table that you want to get.
 
 ##### Regular select
@@ -43,7 +40,6 @@ $db->select('column1, column2', 'col1, col2');
 $data = $db->get('table1');
 ```
 ### WHERE
-
 Add condition to fetch data you desire.
 
 ##### Regular where
@@ -62,14 +58,14 @@ $data = $db->get('table1');
 ```
 ##### Where like
 ```php
-// Equal to "... WHERE `column1` LIKE '%value1%'  ..."
+// Equal to "... WHERE `column1` LIKE '%value1%' ..."
 $db->like('column1', 'value1');
 
 $data = $db->get('table1');
 ```
 ##### Where regexp
 ```php
-// Equal to "... WHERE `column1` REGEXP 'pattern'  ..."
+// Equal to "... WHERE `column1` REGEXP 'pattern' ..."
 $db->regexp('column1', 'pattern');
 
 $data = $db->get('table1');
