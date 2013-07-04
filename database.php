@@ -73,9 +73,10 @@ class Database
 		$this->_param_value = array();
 
 		$this->_setting = array(
-			'trim'    => FALSE,
-			'escape'  => TRUE,
-			'prepare' => TRUE
+			'trim'      => FALSE,
+			'escape'    => TRUE,
+			'prepare'   => TRUE,
+			'autoreset' => TRUE
 		);
 	}
 
@@ -182,6 +183,23 @@ class Database
 		return $this;
 	}
 
+	public function regexp()
+	{
+		$params = func_get_args();
+		if(count($params) >= 2)
+		{
+			if(preg_match('/^\/(.+)\/$/', $params[1]) === 1)
+			{
+				preg_match_all('/^\/(.+)\/$/', $params[1], $result);
+				if(isset($result[1][0])) $params[1] = $result[1][0];
+			}
+			$params[1] = "^@$params[1]";
+			call_user_func_array(array($this, 'where'), $params);
+		}
+		return $this;
+
+	}
+
 	public function sort()
 	{
 		$params = func_get_args();
@@ -261,7 +279,6 @@ class Database
 			$this->_table = $table_name;
 			$query        = $this->_build_get_query($table_name);
 			$this->_sql   = $query;
-
 			
 			if($this->setting('prepare'))
 			{
@@ -273,14 +290,14 @@ class Database
 						array_unshift($params, $this->_param_type);
 						call_user_func_array(array($stmt, 'bind_param'), $this->_ref_values($params));
 					}
-					$this->_reset();
+					if($this->setting('autoreset')) $this->_reset();
 					$stmt->execute();
 					return $this->_dynamic_bind_results($stmt);
 				}
 				else
 				{
 					$this->status(3);
-					$this->_reset();
+					if($this->setting('autoreset')) $this->_reset();
 					return array();
 				}
 			}
@@ -288,13 +305,13 @@ class Database
 			{
 				if($result = $this->_mysql->query($query))
 				{
-					$this->_reset();
+					if($this->setting('autoreset')) $this->_reset();
 					return $this->result($result);
 				}
 				else
 				{
 					$this->status(3);
-					$this->_reset();
+					if($this->setting('autoreset')) $this->_reset();
 					return array();
 				}
 			}
@@ -396,6 +413,11 @@ class Database
 						$op   = "LIKE";
 						$w[1] .= "%";
 					}
+					else if(preg_match('/^(\^@).+$/', $w[1]) === 1)
+					{
+						$op   = "REGEXP";
+						$w[1] = preg_replace('/^(\^@)(.+)$/', '${2}', $w[1]);
+					}
 					if($this->setting('prepare'))
 					{
 						if($this->setting('trim')) self::trim($w[1]);
@@ -431,7 +453,7 @@ class Database
 					{
 						if($this->setting('trim')) self::trim($w[1]);
 						if($this->setting('escape')) $this->escape($w[1]);
-						$in = implode(', ', $w[1]);
+						$in = '\''. implode('\', \'', $w[1]) . '\'';
 					}
 
 					$wh[] = "`$w[0]` IN ($in)";

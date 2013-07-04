@@ -14,13 +14,15 @@ $c = array(
 $db = new Database($c['host'], $c['user'], $c['pass'], $c['name'], $c['port']);
 
 $data = array();
-// $db->setting('prepare', FALSE);
-// $db->setting('escape', FALSE);
+$db->setting('prepare', FALSE);
+$db->setting('autoreset', FALSE);
 $data = $db
-	// ->where('name', array('Ungu', 'Peterpan', 'Dewa'))
+	->where('name', array('Ungu', 'Peterpan', 'Dewa'))
 	// ->where('name', 'Padi')
 	// ->select('artist_id, uri, name')
-	// ->where('artist_id', '<=6')
+	// ->where('id', '<=6')
+	// ->regexp('id', '/^[1-9]$/')
+	
 	// ->select('uri, name, artist_id', 'url, nama_lagu, artist_id')
 	// ->select('name', 'nama_artist', 'artist')
 	// ->join('artist', 'id', 'artist_id')
