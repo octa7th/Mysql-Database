@@ -9,7 +9,7 @@ This project is inspired by codeigniter database active record class. Feel free 
 
 You can use this class in many ways, i'm gonna show you one by one. Using a demo table.
 
-### Get
+### GET
 
 Get data from table
 ```php
@@ -24,17 +24,53 @@ $port     = 3306; // Optional
 $db   = new Database($host, $user, $password, $db_name, $port);
 $data = $db->get('table1'); // Equal to "SELECT * FROM `table1`;"
 ```
-### Select
+### SELECT
 
 Select field in table that you want to get.
 
-#### Ordinary SELECT
+##### Regular select
 ```php
-$db->select('column1, column2'); // Equal to "SELECT `column1`, `column2` ..."
-$db->get('table1');
+// Equal to "SELECT `column1`, `column2` ..."
+$db->select('column1, column2');
+
+$data = $db->get('table1');
 ```
-#### SELECT AS
+##### Select as
 ```php
-$db->select('column1, column2', 'col1, col2'); // Equal to "SELECT `column1` AS 'col1', `column2` AS 'col2' ..."
-$db->get('table1');
+// Equal to "SELECT `column1` AS 'col1', `column2` AS 'col2' ..."
+$db->select('column1, column2', 'col1, col2');
+
+$data = $db->get('table1');
+```
+### WHERE
+
+Add condition to fetch data you desire.
+
+##### Regular where
+```php
+// Equal to "... WHERE `column1` = 'value1' ..."
+$db->where('column1', 'value1');
+
+$data = $db->get('table1');
+```
+##### Where in
+```php
+// Equal to "... WHERE `column1` IN ('value1', 'value2', 'value3') ..."
+$db->where('column1', array('value1', 'value2', 'value3'));
+
+$data = $db->get('table1');
+```
+##### Where like
+```php
+// Equal to "... WHERE `column1` LIKE '%value1%'  ..."
+$db->like('column1', 'value1');
+
+$data = $db->get('table1');
+```
+##### Where regexp
+```php
+// Equal to "... WHERE `column1` REGEXP 'pattern'  ..."
+$db->regexp('column1', 'pattern');
+
+$data = $db->get('table1');
 ```
