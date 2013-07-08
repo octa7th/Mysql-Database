@@ -45,6 +45,7 @@ $data = $db->get('student');
 
 ### SELECT
 Select field in table that you want to get.
+
 Code: `$db->select($field [,$alias] [,$table_name])`
 
 ##### Regular select
@@ -111,7 +112,8 @@ $data = $db->get('student');
 
 
 ### ORDER / SORT
-Order data by field name
+Order data by field name.
+
 Code: `$db->order($field [,$direction] [,$table_name])` OR `$db->sort($field [,$direction] [,$table_name])`
 Both will get same result
 ```php
@@ -123,7 +125,8 @@ $data = $db-get('student');
 
 
 ### LIMIT
-Add limit when fetching data
+Add limit when fetching data.
+
 Code: `$db->limit([$start] [,$amount])`
 ```php
 // Equals to "... LIMI"
