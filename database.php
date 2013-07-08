@@ -354,6 +354,19 @@ class Database
 		}
 	}
 
+	public function insert($table_name = NULL, $data = array())
+	{
+		if(is_string($table_name))
+		{
+			if($this->setting('escape')) $this->escape($data);
+			if($this->setting('trim')) self::trim($data);
+
+			$this->_table     = $table_name;
+			$query            = $this->_build_insert_query($data);
+			$this->last_query = $query;
+		}
+	}
+
 	private function _build_get_query()
 	{
 		$select = $this->_build_select();
@@ -547,6 +560,29 @@ class Database
 			$order = "\nORDER BY " . implode(', ', $or);
 		}
 		return $order;	
+	}
+
+	private function _build_insert_query($data)
+	{
+		$keys   = array();
+		$values = array();
+		foreach ($data as $k => $v)
+		{
+			$keys[] = "`$k`";
+			if($this->setting('prepare'))
+			{
+				$values[] = "?";
+				$this->_param_type   .= $this->_determine_type($v);
+				$this->_param_value[] = $v;
+			}
+			else
+			{
+				$values[] = "'$v'";
+			}
+		}
+		$key = implode(', ', $keys);
+		$val = implode(', ', $values);
+		$query = "INSERT INTO `$this->_table` ($key) VALUES ($val);";
 	}
 
 	public function reset()
