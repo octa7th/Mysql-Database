@@ -29,25 +29,25 @@ class Database
 	 * WHERE condition storage
 	 * @var array
 	 */
-	// private $_where;
+	private $_where;
 
 	/**
 	 * WHERE IN condition storage
 	 * @var array
 	 */
-	// private $_where_in;
+	private $_where_in;
 
 	/**
 	 * SELECT fields storage
 	 * @var array
 	 */
-	// private $_select;
+	private $_select;
 
 	/**
 	 * JOIN table and reference storage
 	 * @var array
 	 */
-	// private $_join;
+	private $_join;
 	
 	private $_setting;
 
