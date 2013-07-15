@@ -15,8 +15,8 @@ $db = new Database($c['host'], $c['user'], $c['pass'], $c['name'], $c['port']);
 
 $data = array();
 $db->setting('prepare', FALSE);
-$db->setting('autoreset', FALSE);
-$data = $db
+// $db->setting('autoreset', FALSE);
+/*$data = $db
 	->where('name', array('Ungu', 'Peterpan', 'Dewa'))
 	// ->where('name', 'Padi')
 	// ->select('artist_id, uri, name')
@@ -30,7 +30,12 @@ $data = $db
 	// ->order('name', 'DESC', 'artist')
 	// ->order('name')
 	->limit(0, 20)
-	->get('artist');
+	->get('artist');*/
+$data = array(
+	'name' => 'Sofyan Test2',
+	'uri'  => 'sofyan-test2'
+);
+$insert = $db->insert('artist', $data);
 
 echo "<pre>";
 if( ! empty($db->_select))
@@ -62,17 +67,18 @@ if( ! empty($db->_where_in))
 	print_r($db->_where_in);
 }
 echo "\n=================\n";
-echo "QUERY";
-echo "\n-----------------\n";
-echo "$db->_sql\n";
-echo "\n";
-echo "\n=================\n";
 echo "RESULT";
 echo "\n-----------------\n";
+var_dump($insert);
 print_r($data);
 echo "\n=================\n";
 echo "STATUS";
 echo "\n-----------------\n";
 print_r($db->status());
+echo "\n=================\n";
+echo "QUERY";
+echo "\n-----------------\n";
+echo "$db->last_query\n";
+echo "\n";
 echo "</pre>";
 die();
