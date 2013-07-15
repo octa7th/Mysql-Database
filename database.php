@@ -354,6 +354,58 @@ class Database
 		}
 	}
 
+	public function insert($table_name = NULL, $data = array())
+	{
+		if(is_string($table_name))
+		{
+			if($this->setting('escape')) $this->escape($data);
+			if($this->setting('trim')) self::trim($data);
+
+			$this->_table     = $table_name;
+			$query            = $this->_build_insert_query($data);
+			$this->last_query = $query;
+
+			if($this->setting('prepare'))
+			{
+				if($stmt = $this->_mysql->prepare($query))
+				{
+					if( ! empty($this->_param_value))
+					{
+						$params = $this->_param_value;
+						array_unshift($params, $this->_param_type);
+						call_user_func_array(array($stmt, 'bind_param'), $this->_ref_values($params));
+					}
+					if($this->setting('autoreset')) $this->reset();
+					return $stmt->execute();
+				}
+				else
+				{
+					$this->status(3);
+					if($this->setting('autoreset')) $this->reset();
+					return array();
+				}
+			}
+			else
+			{
+				if($result = $this->_mysql->query($query))
+				{
+					if($this->setting('autoreset')) $this->reset();
+					return $result;
+				}
+				else
+				{
+					$this->status(3);
+					if($this->setting('autoreset')) $this->reset();
+					return FALSE;
+				}
+			}
+		}
+		else
+		{
+			return FALSE;
+		}
+	}
+
 	private function _build_get_query()
 	{
 		$select = $this->_build_select();
@@ -549,9 +601,31 @@ class Database
 		return $order;	
 	}
 
+	private function _build_insert_query($data)
+	{
+		$keys   = array();
+		$values = array();
+		foreach ($data as $k => $v)
+		{
+			$keys[] = "`$k`";
+			if($this->setting('prepare'))
+			{
+				$values[] = "?";
+				$this->_param_type   .= $this->_determine_type($v);
+				$this->_param_value[] = $v;
+			}
+			else
+			{
+				$values[] = "'$v'";
+			}
+		}
+		$key = implode(', ', $keys);
+		$val = implode(', ', $values);
+		return "INSERT INTO `$this->_table` ($key) VALUES ($val);";
+	}
+
 	public function reset()
 	{
-		return;
 		$this->_where       = array();
 		$this->_where_in    = array();
 		$this->_select      = array();
