@@ -364,6 +364,45 @@ class Database
 			$this->_table     = $table_name;
 			$query            = $this->_build_insert_query($data);
 			$this->last_query = $query;
+
+			if($this->setting('prepare'))
+			{
+				if($stmt = $this->_mysql->prepare($query))
+				{
+					if( ! empty($this->_param_value))
+					{
+						$params = $this->_param_value;
+						array_unshift($params, $this->_param_type);
+						call_user_func_array(array($stmt, 'bind_param'), $this->_ref_values($params));
+					}
+					if($this->setting('autoreset')) $this->reset();
+					return $stmt->execute();
+				}
+				else
+				{
+					$this->status(3);
+					if($this->setting('autoreset')) $this->reset();
+					return array();
+				}
+			}
+			else
+			{
+				if($result = $this->_mysql->query($query))
+				{
+					if($this->setting('autoreset')) $this->reset();
+					return $result;
+				}
+				else
+				{
+					$this->status(3);
+					if($this->setting('autoreset')) $this->reset();
+					return FALSE;
+				}
+			}
+		}
+		else
+		{
+			return FALSE;
 		}
 	}
 
@@ -582,12 +621,11 @@ class Database
 		}
 		$key = implode(', ', $keys);
 		$val = implode(', ', $values);
-		$query = "INSERT INTO `$this->_table` ($key) VALUES ($val);";
+		return "INSERT INTO `$this->_table` ($key) VALUES ($val);";
 	}
 
 	public function reset()
 	{
-		return;
 		$this->_where       = array();
 		$this->_where_in    = array();
 		$this->_select      = array();
