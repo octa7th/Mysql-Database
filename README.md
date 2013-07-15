@@ -129,8 +129,25 @@ Add limit when fetching data.
 
 Code: `$db->limit([$start] [,$amount])`
 ```php
-// Equals to "... LIMI"
+// Equals to "... LIMIT 0, 10"
+$db->limit(0, 10);
+
+$data = $db-get('student');
 ```
+
+
+### INSERT
+Insert new data to database
+Code: `$db->insert($table_name ,$data)`
+```php
+$data = array(
+	'first_name' => 'Harry'
+	'lasy_name'  => 'Botak'
+	'school_id'  => 27
+);
+$db->insert('student', $data);
+```
+
 
 
 ## Chaining Method
