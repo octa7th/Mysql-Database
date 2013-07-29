@@ -48,7 +48,11 @@ class Database
      * @var array
      */
     private $_join;
-    
+
+    /**
+     * Predefined and user setting storage
+     * @var array
+     */
     private $_setting;
 
     /**
@@ -60,7 +64,7 @@ class Database
      * 3 = Unknown error / Query Error
      */
     private $_status;
-    
+
     function __construct($host = NULL, $username = NULL, $password = NULL, $db = NULL, $port = 3306)
     {
         if(is_null($host))
@@ -155,7 +159,7 @@ class Database
                         );
                         if(isset($params[2])) $select[] = trim($params[2]);
                         $this->_select[] = $select;
-                    }       
+                    }
                 }
                 else if(count($expl1) === 1 && $length === 2)
                 {
@@ -164,7 +168,7 @@ class Database
                         $select = array(
                             trim($e),
                             trim($e),
-                            trim($params[1])    
+                            trim($params[1])
                         );
                         $this->_select[] = $select;
                     }
@@ -254,7 +258,7 @@ class Database
     /**
      * Function to create a limit of data rows
      * if parameters is empty, as default limit data up to 1000 rows
-     * 
+     *
      * @param number $start Start position to fetch data (pointer)
      * @param number $count Amount of row(s) to fetch
      * @return object $this this object for chaining purpose
@@ -311,7 +315,7 @@ class Database
             $this->_table     = $table_name;
             $query            = $this->_build_get_query($table_name);
             $this->last_query = $query;
-            
+
             if($this->setting('prepare'))
             {
                 if($stmt = $this->_mysql->prepare($query))
@@ -322,14 +326,14 @@ class Database
                         array_unshift($params, $this->_param_type);
                         call_user_func_array(array($stmt, 'bind_param'), $this->_ref_values($params));
                     }
-                    if($this->setting('autoreset')) $this->reset();
+                    $this->reset(TRUE);
                     $stmt->execute();
                     return $this->_dynamic_bind_results($stmt);
                 }
                 else
                 {
                     $this->status(3);
-                    if($this->setting('autoreset')) $this->reset();
+                    $this->reset(TRUE);
                     return array();
                 }
             }
@@ -337,13 +341,13 @@ class Database
             {
                 if($result = $this->_mysql->query($query))
                 {
-                    if($this->setting('autoreset')) $this->reset();
+                    $this->reset(TRUE);
                     return $this->result($result);
                 }
                 else
                 {
                     $this->status(3);
-                    if($this->setting('autoreset')) $this->reset();
+                    $this->reset(TRUE);
                     return array();
                 }
             }
@@ -375,13 +379,13 @@ class Database
                         array_unshift($params, $this->_param_type);
                         call_user_func_array(array($stmt, 'bind_param'), $this->_ref_values($params));
                     }
-                    if($this->setting('autoreset')) $this->reset();
+                    $this->reset(TRUE);
                     return $stmt->execute();
                 }
                 else
                 {
                     $this->status(3);
-                    if($this->setting('autoreset')) $this->reset();
+                    $this->reset(TRUE);
                     return array();
                 }
             }
@@ -389,13 +393,13 @@ class Database
             {
                 if($result = $this->_mysql->query($query))
                 {
-                    if($this->setting('autoreset')) $this->reset();
+                    $this->reset(TRUE);
                     return $result;
                 }
                 else
                 {
                     $this->status(3);
-                    if($this->setting('autoreset')) $this->reset();
+                    $this->reset(TRUE);
                     return FALSE;
                 }
             }
@@ -598,7 +602,7 @@ class Database
 
             $order = "\nORDER BY " . implode(', ', $or);
         }
-        return $order;  
+        return $order;
     }
 
     private function _build_insert_query($data)
@@ -624,17 +628,20 @@ class Database
         return "INSERT INTO `$this->_table` ($key) VALUES ($val);";
     }
 
-    public function reset()
+    public function reset($auto = FALSE)
     {
-        $this->_where       = array();
-        $this->_where_in    = array();
-        $this->_select      = array();
-        $this->_join        = array();
-        $this->_order       = array();
-        $this->_limit       = '';
-        $this->_param_type  = '';
-        $this->_param_value = array();
-        unset($this->_table);
+        if($this->setting('autoreset') OR ! $auto)
+        {
+            $this->_where       = array();
+            $this->_where_in    = array();
+            $this->_select      = array();
+            $this->_join        = array();
+            $this->_order       = array();
+            $this->_limit       = '';
+            $this->_param_type  = '';
+            $this->_param_value = array();
+            unset($this->_table);
+        }
     }
 
     /**
@@ -644,7 +651,7 @@ class Database
      * @param object $stmt Equal to the prepared statement object.
      * @return array The results of the SQL fetch.
      */
-    protected function _dynamic_bind_results($stmt) 
+    protected function _dynamic_bind_results($stmt)
     {
         $parameters = array();
         $results    = array();
@@ -708,7 +715,7 @@ class Database
     /**
      * Helper function to trim data
      * This will remove all unnecessary whitespace inside variable
-     * 
+     *
      * @param mixed $data value that you want to trim (reference)
      * @return trimmed data
      */
@@ -728,13 +735,13 @@ class Database
         {
             $data = trim($data);
             return $data;
-        }   
+        }
     }
 
     /**
      * Function to get / set current status of this object
      * I'm using this for error handling
-     * Status display as an array, status code and status text 
+     * Status display as an array, status code and status text
      *
      * @param number $set Status to set
      * @return current status of this object
@@ -775,7 +782,7 @@ class Database
      * @param mixed $item Input to determine the type.
      * @return string The joined parameter types.
      */
-    protected function _determine_type($item) 
+    protected function _determine_type($item)
     {
         switch (gettype($item))
         {
@@ -838,7 +845,7 @@ class Database
      * Destruct magic method.
      * Close mysqli connection if there's no error
      */
-    public function __destruct() 
+    public function __destruct()
     {
         if($this->status() === 0) $this->_mysql->close();
     }
