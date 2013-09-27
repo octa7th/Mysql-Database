@@ -8,7 +8,7 @@
  * @author    Muhammad Sofyan <sofyan@octa7th.com>
  * @copyright Copyright (c) 2013
  * @license   http://opensource.org/licenses/gpl-3.0.html GNU Public License
- * @version   0.9
+ * @version   0.95
  */
 
 class Database
@@ -464,6 +464,58 @@ class Database
         }
     }
 
+    public function update($table_name = NULL, $data = array())
+    {
+        if( is_string($table_name) && is_array($data) )
+        {
+            if($this->setting('escape')) $this->escape($data);
+            if($this->setting('trim')) self::trim($data);
+
+            $this->_table     = $table_name;
+            $query            = $this->_build_update_query($data);
+            $this->last_query = $query;
+
+            if($this->setting('prepare'))
+            {
+                if($stmt = $this->_mysql->prepare($query))
+                {
+                    if( ! empty($this->_param_value))
+                    {
+                        $params = $this->_param_value;
+                        array_unshift($params, $this->_param_type);
+                        call_user_func_array(array($stmt, 'bind_param'), $this->_ref_values($params));
+                    }
+                    $this->reset(TRUE);
+                    return $stmt->execute();
+                }
+                else
+                {
+                    $this->status(3);
+                    $this->reset(TRUE);
+                    return array();
+                }
+            }
+            else
+            {
+                if($result = $this->_mysql->query($query))
+                {
+                    $this->reset(TRUE);
+                    return $result;
+                }
+                else
+                {
+                    $this->status(3);
+                    $this->reset(TRUE);
+                    return FALSE;
+                }
+            }
+        }
+        else
+        {
+            return FALSE;
+        }
+    }
+
     /**
      * Build SELECT query from another method, concatenated as one query string
      * @return string : mysql query
@@ -684,6 +736,31 @@ class Database
         $key = implode(', ', $keys);
         $val = implode(', ', $values);
         return "INSERT INTO `$this->_table` ($key) VALUES ($val);";
+    }
+
+    private function _build_update_query($data)
+    {
+        $limit   = $this->_limit === '' ? '' : "\nLIMIT $this->_limit";
+        $changes = array();
+
+        foreach ($data as $k => $v)
+        {
+            if($this->setting('prepare'))
+            {
+                $changes[] = "`$k` = ?";
+                $this->_param_type   .= $this->_determine_type($v);
+                $this->_param_value[] = $v;
+            }
+            else
+            {
+                $changes[] = "`$k` = '$v'";
+            }
+        }
+
+        $where   = $this->_build_where();
+        $change = implode(', ', $changes);
+
+        return "UPDATE `$this->_table` \nSET $change \n$where $limit;";
     }
 
     /**
