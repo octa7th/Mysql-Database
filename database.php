@@ -50,6 +50,30 @@ class Database
     private $_join;
 
     /**
+     * ORDER result by table column and direction storage
+     * @var array
+     */
+    private $_order;
+
+    /**
+     * number of result LIMIT to fetch storage
+     * @var string
+     */
+    private $_limit;
+
+    /**
+     * Store parameter type if we using mysql prepare statement
+     * @var string
+     */
+    private $_param_type;
+
+    /**
+     * Store parameter value if we using mysql prepare statement
+     * @var array
+     */
+    private $_param_value;
+
+    /**
      * Predefined and user setting storage
      * @var array
      */
@@ -65,6 +89,14 @@ class Database
      */
     private $_status;
 
+    /**
+     * Create new instance of mysql class
+     * @param string  $host
+     * @param string  $username
+     * @param string  $password
+     * @param string  $db
+     * @param integer $port
+     */
     function __construct($host = NULL, $username = NULL, $password = NULL, $db = NULL, $port = 3306)
     {
         if(is_null($host))
@@ -73,7 +105,7 @@ class Database
         }
         else
         {
-            if( ! is_object($this->_mysql))
+            if( ! is_object($this->_mysql) )
             {
                 $this->_mysql = new mysqli($host, $username, $password, $db, $port);
             }
@@ -90,6 +122,10 @@ class Database
         }
     }
 
+    /**
+     * Add default value for query storage properties,
+     * Initialize default value for object setting
+     */
     private function _init()
     {
         $this->_where       = array();
@@ -109,6 +145,13 @@ class Database
         );
     }
 
+    /**
+     * Define custom value for each setting,
+     * Return setting value if $set is null
+     * @param  string $key      : settings key
+     * @param  mixed  $set      : value to set
+     * @return mixed  $_setting : settings value
+     */
     public function setting($key = NULL, $set = NULL)
     {
         if( ! is_null($key))
@@ -240,6 +283,13 @@ class Database
         return $this;
     }
 
+    /**
+     * Order data by column name, ascending or descending
+     * @param  string $by         : column name
+     * @param  string $direction  : ascending / descending ('ASC' / 'DESC')
+     * @param  string $table_name : table name (use this if you use join method)
+     * @return object $this       : return the object for chaining method purpose
+     */
     public function order($by, $direction = 'ASC', $table_name = NULL)
     {
         if($direction === 'ASC' OR $direction === 'DESC')
@@ -249,6 +299,10 @@ class Database
         return $this;
     }
 
+    /**
+     * Alias for 'order' method
+     * @return call function 'other'
+     */
     public function sort()
     {
         $params = func_get_args();
@@ -410,6 +464,10 @@ class Database
         }
     }
 
+    /**
+     * Build SELECT query from another method, concatenated as one query string
+     * @return string : mysql query
+     */
     private function _build_get_query()
     {
         $select = $this->_build_select();
@@ -628,6 +686,10 @@ class Database
         return "INSERT INTO `$this->_table` ($key) VALUES ($val);";
     }
 
+    /**
+     * Reset all the object properties that needed to build query to its default value
+     * @param  boolean $auto : Use $auto = TRUE after run a query
+     */
     public function reset($auto = FALSE)
     {
         if($this->setting('autoreset') OR ! $auto)
@@ -678,6 +740,12 @@ class Database
         return $results;
     }
 
+    /**
+     * Primitive way to get to from mysql result object
+     * @param  object   $result : mysql result object
+     * @param  constant $ref    : mysql constant for displaying result data
+     * @return array    $array  : result data
+     */
     public function result($result, $ref = MYSQLI_ASSOC)
     {
         $array = array();
@@ -690,8 +758,8 @@ class Database
 
     /**
      * Escape harmful characters which might affect a query.
-     *
-     * @param mixed $str The mixed to escape.
+     * @param  mixed $data : array / string to escape
+     * @return mixed $data : escaped data
      */
     public function escape(&$data)
     {
