@@ -8,7 +8,7 @@
  * @author    Muhammad Sofyan <sofyan@octa7th.com>
  * @copyright Copyright (c) 2013
  * @license   http://opensource.org/licenses/gpl-3.0.html GNU Public License
- * @version   0.95
+ * @version   0.97
  */
 
 class Database
@@ -423,40 +423,7 @@ class Database
             $query            = $this->_build_insert_query($data);
             $this->last_query = $query;
 
-            if($this->setting('prepare'))
-            {
-                if($stmt = $this->_mysql->prepare($query))
-                {
-                    if( ! empty($this->_param_value))
-                    {
-                        $params = $this->_param_value;
-                        array_unshift($params, $this->_param_type);
-                        call_user_func_array(array($stmt, 'bind_param'), $this->_ref_values($params));
-                    }
-                    $this->reset(TRUE);
-                    return $stmt->execute();
-                }
-                else
-                {
-                    $this->status(3);
-                    $this->reset(TRUE);
-                    return array();
-                }
-            }
-            else
-            {
-                if($result = $this->_mysql->query($query))
-                {
-                    $this->reset(TRUE);
-                    return $result;
-                }
-                else
-                {
-                    $this->status(3);
-                    $this->reset(TRUE);
-                    return FALSE;
-                }
-            }
+            return $this->_run_query($query);
         }
         else
         {
@@ -475,40 +442,23 @@ class Database
             $query            = $this->_build_update_query($data);
             $this->last_query = $query;
 
-            if($this->setting('prepare'))
-            {
-                if($stmt = $this->_mysql->prepare($query))
-                {
-                    if( ! empty($this->_param_value))
-                    {
-                        $params = $this->_param_value;
-                        array_unshift($params, $this->_param_type);
-                        call_user_func_array(array($stmt, 'bind_param'), $this->_ref_values($params));
-                    }
-                    $this->reset(TRUE);
-                    return $stmt->execute();
-                }
-                else
-                {
-                    $this->status(3);
-                    $this->reset(TRUE);
-                    return array();
-                }
-            }
-            else
-            {
-                if($result = $this->_mysql->query($query))
-                {
-                    $this->reset(TRUE);
-                    return $result;
-                }
-                else
-                {
-                    $this->status(3);
-                    $this->reset(TRUE);
-                    return FALSE;
-                }
-            }
+            return $this->_run_query($query);
+        }
+        else
+        {
+            return FALSE;
+        }
+    }
+
+    public function delete($table_name)
+    {
+        if( is_string($table_name) )
+        {
+            $this->_table     = $table_name;
+            $query            = $this->_build_delete_query($data);
+            $this->last_query = $query;
+
+            return $this->_run_query($query);
         }
         else
         {
@@ -760,7 +710,13 @@ class Database
         $where   = $this->_build_where();
         $change = implode(', ', $changes);
 
-        return "UPDATE `$this->_table` \nSET $change \n$where $limit;";
+        return "UPDATE `$this->_table` \nSET $change \n$where;";
+    }
+
+    public function _build_delete_query()
+    {
+        $where = $this->_build_where();
+        return "DELETE FROM `$this->_table` \n$where;";
     }
 
     /**
@@ -780,6 +736,44 @@ class Database
             $this->_param_type  = '';
             $this->_param_value = array();
             unset($this->_table);
+        }
+    }
+
+    protected function _run_query($query)
+    {
+        if($this->setting('prepare'))
+        {
+            if($stmt = $this->_mysql->prepare($query))
+            {
+                if( ! empty($this->_param_value))
+                {
+                    $params = $this->_param_value;
+                    array_unshift($params, $this->_param_type);
+                    call_user_func_array(array($stmt, 'bind_param'), $this->_ref_values($params));
+                }
+                $this->reset(TRUE);
+                return $stmt->execute();
+            }
+            else
+            {
+                $this->status(3);
+                $this->reset(TRUE);
+                return array();
+            }
+        }
+        else
+        {
+            if($result = $this->_mysql->query($query))
+            {
+                $this->reset(TRUE);
+                return $result;
+            }
+            else
+            {
+                $this->status(3);
+                $this->reset(TRUE);
+                return FALSE;
+            }
         }
     }
 
