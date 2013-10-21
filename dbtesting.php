@@ -6,7 +6,7 @@ require 'database.php';
 $c = array(
 	'host' => 'localhost',
 	'user' => 'root',
-	'pass' => '',
+	'pass' => 'i3p1o2i3o2',
 	'name' => 'chord',
 	'port' => 3306
 );
@@ -14,27 +14,43 @@ $c = array(
 $db = new Database($c['host'], $c['user'], $c['pass'], $c['name'], $c['port']);
 
 $data = array();
-$db->setting('prepare', FALSE);
+// $db->setting('prepare', FALSE);
+// $db->setting('escape', FALSE);
 // $db->setting('autoreset', FALSE);
-/*$data = $db
-	->where('name', array('Ungu', 'Peterpan', 'Dewa'))
+
+// $update = $db
+	// ->insert('artist', array('name' => 'Nananana', 'uri' => 'nananana'));
+	// ->where('uri', 'nananana')
+	// ->like('uri', 'sofyan-test')
+	// ->delete('artist');
+	// ->update('artist', array('name' => 'BANananana', 'uri' => 'nananana'));
+
+// echo "update";
+// var_dump($update);
+
+$data = $db
+	// ->where('name', array('Ungu', 'Peterpan', 'Dewa'))
 	// ->where('name', 'Padi')
+	// ->where('name', $_GET['name'])
 	// ->select('artist_id, uri, name')
 	// ->where('id', '<=6')
 	// ->regexp('id', '/^[1-9]$/')
-	
+
 	// ->select('uri, name, artist_id', 'url, nama_lagu, artist_id')
 	// ->select('name', 'nama_artist', 'artist')
 	// ->join('artist', 'id', 'artist_id')
-	// ->like('name', 'ada', 'artist')
+	// ->like('name', $_GET['name'], 'artist')
+	->order('id', 'DESC')
 	// ->order('name', 'DESC', 'artist')
 	// ->order('name')
-	->limit(0, 20)
-	->get('artist');*/
+	->limit(0, 5)
+	->get('artist');
 $data = array(
 	'name' => 'Sofyan Test2',
 	'uri'  => 'sofyan-test2'
 );
+
+// $insert = '';
 $insert = $db->insert('artist', $data);
 
 echo "<pre>";
@@ -70,7 +86,10 @@ echo "\n=================\n";
 echo "RESULT";
 echo "\n-----------------\n";
 var_dump($insert);
-print_r($data);
+echo "\n=================\n";
+echo "LAST ID";
+echo "\n-----------------\n";
+print_r($db->insert_id());
 echo "\n=================\n";
 echo "STATUS";
 echo "\n-----------------\n";
