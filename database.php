@@ -8,7 +8,7 @@
  * @author    Muhammad Sofyan <sofyan@octa7th.com>
  * @copyright Copyright (c) 2013
  * @license   http://opensource.org/licenses/gpl-3.0.html GNU Public License
- * @version   0.97
+ * @version   1.0.5
  */
 
 class Database
