@@ -1084,15 +1084,16 @@ class Database
     {
         $check_number = FALSE;
 
-        if(is_number($value))
+        if(is_int($value))
         {
             $check_number = TRUE;
         }
         else if(preg_match('/^(0|[1-9]\d*)$/', $value) === 1)
         {
-            $value += 0;
+            $value = intval($value);
             $check_number = TRUE;
         }
+
         return $check_number;
     }
 
