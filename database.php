@@ -572,23 +572,35 @@ class Database
 
                 if($l >= 2 && $join)
                 {
+                    $s0 = $s[0] === '*' ? '*' : "`$s[0]`";
+
                     if($l === 2)
                     {
-                        $sel[] = in_array($s[1], $tjoin) ? "`$s[1]`.`$s[0]`"
-                               : ($s[0] === $s[1]        ? "`$table`.`$s[0]`"
-                               : "`$table`.`$s[0]` AS '$s[1]'");
+                        if($s[0] === $s[1] OR $table === $s[1])
+                        {
+                            $sel[] = "`$table`.$s0";
+                        }
+                        else if(in_array($s[1], $tjoin))
+                        {
+                            $sel[] = "`$s[1]`.$s0";
+                        }
+                        else
+                        {
+                            $sel[] = "`$table`.$s0 AS '$s[1]'";
+                        }
                     }
                     else
                     {
                         if(in_array($s[2], $tjoin))
                         {
-                            $sel[] = "`$s[2]`.`$s[0]` AS '$s[1]'";
+                            $sel[] = "`$s[2]`.$s0 AS '$s[1]'";
                         }
                     }
                 }
                 else if($l === 1 && $join)
                 {
-                    $sel[] = "`$table`.`$s[0]`";
+                    $s0 = $s[0] === '*' ? '*' : "`$s[0]`";
+                    $sel[] = "`$table`.$s0";
                 }
                 else if($l >= 2)
                 {
