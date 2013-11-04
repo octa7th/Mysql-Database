@@ -26,6 +26,12 @@ class Database
     public $last_query;
 
     /**
+     * Gets the number of affected rows in a previous MySQL operation
+     * @var integer
+     */
+    public $affected_rows;
+
+    /**
      * WHERE condition storage
      * @var array
      */
@@ -136,6 +142,7 @@ class Database
         $this->_limit       = '';
         $this->_param_type  = '';
         $this->_param_value = array();
+        $this->affected_rows = 0;
 
         $this->_setting = array(
             'trim'      => FALSE,
@@ -826,6 +833,7 @@ class Database
             $this->_limit       = '';
             $this->_param_type  = '';
             $this->_param_value = array();
+            $this->affected_rows = 0;
             unset($this->_table);
         }
     }
@@ -843,7 +851,10 @@ class Database
                     call_user_func_array(array($stmt, 'bind_param'), $this->_ref_values($params));
                 }
                 $this->reset(TRUE);
-                return $stmt->execute();
+                $result = $stmt->execute();
+                $this->affected_rows = $stmt->affected_rows;
+                $stmt->close();
+                return $result;
             }
             else
             {
@@ -856,6 +867,7 @@ class Database
         {
             if($result = $this->_mysql->query($query))
             {
+                $this->affected_rows = $this->_mysql->affected_rows;
                 $this->reset(TRUE);
                 return $result;
             }
