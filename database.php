@@ -415,7 +415,7 @@ class Database
         }
         else
         {
-
+            return FALSE;
         }
     }
 
