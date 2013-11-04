@@ -911,6 +911,8 @@ class Database
             }
             array_push($results, $ar);
         }
+
+        $stmt->close();
         return $results;
     }
 
