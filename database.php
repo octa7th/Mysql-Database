@@ -369,6 +369,96 @@ class Database
         return $this;
     }
 
+    public function query($query, $data = array())
+    {
+        if(is_string($query))
+        {
+            $this->last_query = $query;
+
+            $is_select = preg_match('/^SELECT/i', $query);
+            $is_update = preg_match('/^UPDATE/i', $query);
+            $is_insert = preg_match('/^INSERT/i', $query);
+            $is_delete = preg_match('/^DELETE/i', $query);
+
+            if($this->setting('prepare'))
+            {
+                if($stmt = $this->_mysql->prepare($query))
+                {
+                    if( is_array($data) && (count($data) > 0) )
+                    {
+                        $params = $data;
+                        $param_type = "";
+                        foreach ($params as $v)
+                        {
+                            $param_type .= $this->_determine_type($v);
+                        }
+                        array_unshift($params, $param_type);
+                        call_user_func_array(array($stmt, 'bind_param'), $this->_ref_values($params));
+                    }
+                    $this->reset(TRUE);
+
+                    if($is_select)
+                    {
+                        $stmt->execute();
+                        return $this->_dynamic_bind_results($stmt);
+                    }
+                    else if($is_update)
+                    {
+                        return $stmt->execute();
+                    }
+                }
+                else
+                {
+                    $this->status(3);
+                    $this->reset(TRUE);
+
+                    if($is_select)
+                    {
+                        return array();
+                    }
+                    else
+                    {
+                        return FALSE;
+                    }
+                }
+            }
+            else
+            {
+                if($result = $this->_mysql->query($query))
+                {
+                    $this->reset(TRUE);
+
+                    if($is_select)
+                    {
+                        return $this->result($result);
+                    }
+                    else
+                    {
+                        return TRUE;
+                    }
+                }
+                else
+                {
+                    $this->status(3);
+                    $this->reset(TRUE);
+
+                    if($is_select)
+                    {
+                        return array();
+                    }
+                    else
+                    {
+                        return FALSE;
+                    }
+                }
+            }
+        }
+        else
+        {
+            return FALSE;
+        }
+    }
+
     public function get($table_name = NULL)
     {
         if(is_string($table_name))
