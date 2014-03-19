@@ -15,21 +15,20 @@ class Database
 {
     /**
      * Mysqli object
-     * @var object
+     * @var mysqli
      */
     private $_mysql;
+
+    /**
+     * Table name
+     */
+    private $_table;
 
     /**
      * Last executed query
      * @var string
      */
     public $last_query;
-
-    /**
-     * Gets the number of affected rows in a previous MySQL operation
-     * @var integer
-     */
-    public $affected_rows;
 
     /**
      * WHERE condition storage
@@ -142,7 +141,6 @@ class Database
         $this->_limit       = '';
         $this->_param_type  = '';
         $this->_param_value = array();
-        $this->affected_rows = 0;
 
         $this->_setting = array(
             'trim'      => FALSE,
@@ -308,7 +306,7 @@ class Database
 
     /**
      * Alias for 'order' method
-     * @return call function 'other'
+     * @return object this, call function 'other'
      */
     public function sort()
     {
@@ -320,9 +318,9 @@ class Database
      * Function to create a limit of data rows
      * if parameters is empty, as default limit data up to 1000 rows
      *
-     * @param number $start Start position to fetch data (pointer)
-     * @param number $count Amount of row(s) to fetch
-     * @return object $this this object for chaining purpose
+     * @param  int : Start position to fetch data pointer
+     * @param  int : Amount of rows to fetch
+     * @return object $this
      */
     public function limit($start = 0, $count = 1000)
     {
@@ -375,10 +373,11 @@ class Database
         {
             $this->last_query = $query;
 
-            $is_select = preg_match('/^SELECT/i', $query);
-            $is_update = preg_match('/^UPDATE/i', $query);
-            $is_insert = preg_match('/^INSERT/i', $query);
-            $is_delete = preg_match('/^DELETE/i', $query);
+            $is_select = preg_match('/^\(*SELECT/i', $query);
+            $is_select = $is_select OR preg_match('/^\(*SHOW/i', $query);
+            $is_update = preg_match('/^\(*UPDATE/i', $query);
+            $is_insert = preg_match('/^\(*INSERT/i', $query);
+            $is_delete = preg_match('/^\(*DELETE/i', $query);
 
             if($this->setting('prepare'))
             {
@@ -509,12 +508,21 @@ class Database
         }
     }
 
-    public function get_total($table_name = NULL)
+    public function get_value($value = NULL)
     {
-        if(is_string($table_name))
+        $data = array();
+        $this->_is_number($value);
+
+        if( ! is_null($value) )
         {
-            $this->_table     = $table_name;
-            $query            = $this->_build_total_query($table_name);
+            $val = "'$value'";
+
+            if(preg_match('/^MYSQL_CONST_(\w+)_MYSQL_CONST$/', $value, $regTest) === 1)
+            {
+                $val = $regTest[1];
+            }
+
+            $query            = "SELECT $val;";
             $this->last_query = $query;
 
             if($this->setting('prepare'))
@@ -529,13 +537,13 @@ class Database
                     }
                     $this->reset(TRUE);
                     $stmt->execute();
-                    $total = $this->_dynamic_bind_results($stmt);
+                    $data = $this->_dynamic_bind_results($stmt);
                 }
                 else
                 {
                     $this->status(3);
                     $this->reset(TRUE);
-                    $total = array();
+                    $data = array();
                 }
             }
             else
@@ -543,24 +551,26 @@ class Database
                 if($result = $this->_mysql->query($query))
                 {
                     $this->reset(TRUE);
-                    return $this->result($result);
+                    $data = $this->result($result);
                 }
                 else
                 {
                     $this->status(3);
                     $this->reset(TRUE);
-                    $total = array();
+                    $data = array();
                 }
             }
+        }
 
-            return count($total) === 1 ? $total[0]['total'] : 0;
-        }
-        else
-        {
-            return FALSE;
-        }
+        return count($data) > 0 ? $data[0] : NULL;
     }
 
+    /**
+     * Function insert
+     * @param  string $table_name The name of the table.
+     * @param  array $data Data containing information for inserting into the DB.
+     * @return boolean Boolean indicating whether the insert query was completed succesfully.
+     */
     public function insert($table_name = NULL, $data = array())
     {
         if(is_string($table_name))
@@ -614,7 +624,7 @@ class Database
         if( is_string($table_name) )
         {
             $this->_table     = $table_name;
-            $query            = $this->_build_delete_query($data);
+            $query            = $this->_build_delete_query();
             $this->last_query = $query;
 
             return $this->_run_query($query);
@@ -723,8 +733,8 @@ class Database
                 $l = count($w);
 
                 $w[0] = ($l === 3 && $join) ? "$w[2]`.`$w[0]"
-                      : ($l === 2 && $join  ? "$table`.`$w[0]"
-                      : $w[0]);
+                    : ($l === 2 && $join  ? "$table`.`$w[0]"
+                        : $w[0]);
 
                 if($l >= 2)
                 {
@@ -852,9 +862,9 @@ class Database
         {
             $keys[] = "`$k`";
 
-            if($this->_check_word($v))
+            if(preg_match('/^MYSQL_CONST_(\w+)_MYSQL_CONST$/', $v, $regTest) === 1)
             {
-                $values[] = $v;
+                $values[] = $regTest[1];
             }
             else if($this->setting('prepare'))
             {
@@ -879,11 +889,7 @@ class Database
 
         foreach ($data as $k => $v)
         {
-            if($this->_check_word($v))
-            {
-                $changes[] = "`$k` = $v";
-            }
-            else if($this->setting('prepare'))
+            if($this->setting('prepare'))
             {
                 $changes[] = "`$k` = ?";
                 $this->_param_type   .= $this->_determine_type($v);
@@ -923,7 +929,6 @@ class Database
             $this->_limit       = '';
             $this->_param_type  = '';
             $this->_param_value = array();
-            $this->affected_rows = 0;
             unset($this->_table);
         }
     }
@@ -941,10 +946,7 @@ class Database
                     call_user_func_array(array($stmt, 'bind_param'), $this->_ref_values($params));
                 }
                 $this->reset(TRUE);
-                $result = $stmt->execute();
-                $this->affected_rows = $stmt->affected_rows;
-                $stmt->close();
-                return $result;
+                return $stmt->execute();
             }
             else
             {
@@ -957,7 +959,6 @@ class Database
         {
             if($result = $this->_mysql->query($query))
             {
-                $this->affected_rows = $this->_mysql->affected_rows;
                 $this->reset(TRUE);
                 return $result;
             }
@@ -1001,15 +1002,13 @@ class Database
             }
             array_push($results, $ar);
         }
-
-        $stmt->close();
         return $results;
     }
 
     /**
      * Primitive way to get to from mysql result object
      * @param  object   $result : mysql result object
-     * @param  constant $ref    : mysql constant for displaying result data
+     * @param  int  $ref : mysql constant for displaying result data
      * @return array    $array  : result data
      */
     public function result($result, $ref = MYSQLI_ASSOC)
@@ -1051,7 +1050,7 @@ class Database
      * This will remove all unnecessary whitespace inside variable
      *
      * @param mixed $data value that you want to trim (reference)
-     * @return trimmed data
+     * @return mixed trimmed data
      */
     public static function trim(&$data)
     {
@@ -1078,7 +1077,7 @@ class Database
      * Status display as an array, status code and status text
      *
      * @param number $set Status to set
-     * @return current status of this object
+     * @return array current status of this object
      */
     public function status($set = NULL)
     {
@@ -1136,58 +1135,9 @@ class Database
         }
     }
 
-    private function _check_word($word)
+    public static function mysql_const($const)
     {
-        $words = array(
-            'ACCESSIBLE',         'ADD',                 'ALL',                           'ALTER',             'ANALYZE',
-            'AND',                'AS',                  'ASC',                           'ASENSITIVE',        'BEFORE',
-            'BETWEEN',            'BIGINT',              'BINARY',                        'BLOB',              'BOTH',
-            'BY',                 'CALL',                'CASCADE',                       'CASE',              'CHANGE',
-            'CHAR',               'CHARACTER',           'CHECK',                         'COLLATE',           'COLUMN',
-            'CONDITION',          'CONSTRAINT',          'CONTINUE',                      'CONVERT',           'CREATE',
-            'CROSS',              'CURRENT_DATE',        'CURRENT_TIME',                  'CURRENT_TIMESTAMP', 'CURRENT_USER',
-            'CURSOR',             'DATABASE',            'DATABASES',                     'DAY_HOUR',          'DAY_MICROSECOND',
-            'DAY_MINUTE',         'DAY_SECOND',          'DEC',                           'DECIMAL',           'DECLARE',
-            'DEFAULT',            'DELAYED',             'DELETE',                        'DESC',              'DESCRIBE',
-            'DETERMINISTIC',      'DISTINCT',            'DISTINCTROW',                   'DIV',               'DOUBLE',
-            'DROP',               'DUAL',                'EACH',                          'ELSE',              'ELSEIF',
-            'ENCLOSED',           'ESCAPED',             'EXISTS',                        'EXIT',              'EXPLAIN',
-            'FALSE',              'FETCH',               'FLOAT',                         'FLOAT4',            'FLOAT8',
-            'FOR',                'FORCE',               'FOREIGN',                       'FROM',              'FULLTEXT',
-            'GRANT',              'GROUP',               'HAVING',                        'HIGH_PRIORITY',     'HOUR_MICROSECOND',
-            'HOUR_MINUTE',        'HOUR_SECOND',         'IF',                            'IGNORE',            'IN',
-            'INDEX',              'INFILE',              'INNER',                         'INOUT',             'INSENSITIVE',
-            'INSERT',             'INT',                 'INT1',                          'INT2',              'INT3',
-            'INT4',               'INT8',                'INTEGER',                       'INTERVAL',          'INTO',
-            'IS',                 'ITERATE',             'JOIN',                          'KEY',               'KEYS',
-            'KILL',               'LEADING',             'LEAVE',                         'LEFT',              'LIKE',
-            'LIMIT',              'LINEAR',              'LINES',                         'LOAD',              'LOCALTIME',
-            'LOCALTIMESTAMP',     'LOCK',                'LONG',                          'LONGBLOB',          'LONGTEXT',
-            'LOOP',               'LOW_PRIORITY',        'MASTER_SSL_VERIFY_SERVER_CERT', 'MATCH',             'MAXVALUE',
-            'MEDIUMBLOB',         'MEDIUMINT',           'MEDIUMTEXT',                    'MIDDLEINT',         'MINUTE_MICROSECOND',
-            'MINUTE_SECOND',      'MOD',                 'MODIFIES',                      'NATURAL',           'NOT',
-            'NO_WRITE_TO_BINLOG', 'NULL',                'NUMERIC',                       'ON',                'OPTIMIZE',
-            'OPTION',             'OPTIONALLY',          'OR',                            'ORDER',             'OUT',
-            'OUTER',              'OUTFILE',             'PRECISION',                     'PRIMARY',           'PROCEDURE',
-            'PURGE',              'RANGE',               'READ',                          'READS',             'READ_WRITE',
-            'REAL',               'REFERENCES',          'REGEXP',                        'RELEASE',           'RENAME',
-            'REPEAT',             'REPLACE',             'REQUIRE',                       'RESIGNAL',          'RESTRICT',
-            'RETURN',             'REVOKE',              'RIGHT',                         'RLIKE',             'SCHEMA',
-            'SCHEMAS',            'SECOND_MICROSECOND',  'SELECT',                        'SENSITIVE',         'SEPARATOR',
-            'SET',                'SHOW',                'SIGNAL',                        'SMALLINT',          'SPATIAL',
-            'SPECIFIC',           'SQL',                 'SQLEXCEPTION',                  'SQLSTATE',          'SQLWARNING',
-            'SQL_BIG_RESULT',     'SQL_CALC_FOUND_ROWS', 'SQL_SMALL_RESULT',              'SSL',               'STARTING',
-            'STRAIGHT_JOIN',      'TABLE',               'TERMINATED',                    'THEN',              'TINYBLOB',
-            'TINYINT',            'TINYTEXT',            'TO',                            'TRAILING',          'TRIGGER',
-            'TRUE',               'UNDO',                'UNION',                         'UNIQUE',            'UNLOCK',
-            'UNSIGNED',           'UPDATE',              'USAGE',                         'USE',               'USING',
-            'UTC_DATE',           'UTC_TIME',            'UTC_TIMESTAMP',                 'VALUES',            'VARBINARY',
-            'VARCHAR',            'VARCHARACTER',        'VARYING',                       'WHEN',              'WHERE',
-            'WHILE',              'WITH',                'WRITE',                         'XOR',               'YEAR_MONTH',
-            'ZEROFILL'
-        );
-
-        return in_array($word, $words);
+        return "MYSQL_CONST_{$const}_MYSQL_CONST";
     }
 
     /**
@@ -1195,6 +1145,7 @@ class Database
      * This also convert string that contains valid number
      *
      * @param mixed $value String or number to check
+     * @return boolean is number
      */
     protected function _is_number(&$value)
     {
@@ -1236,7 +1187,8 @@ class Database
      */
     public function __destruct()
     {
-        if($this->status() === 0) $this->_mysql->close();
+        $db_status = $this->status();
+        if($db_status['status'] === 0) $this->_mysql->close();
     }
 }
 
