@@ -227,6 +227,58 @@ class Database
         return $this;
     }
 
+    public function get_total($table_name = NULL)
+    {
+        if(is_string($table_name))
+        {
+            $this->_table     = $table_name;
+            $query            = $this->_build_total_query($table_name);
+            $this->last_query = $query;
+
+            if($this->setting('prepare'))
+            {
+                if($stmt = $this->_mysql->prepare($query))
+                {
+                    if( ! empty($this->_param_value))
+                    {
+                        $params = $this->_param_value;
+                        array_unshift($params, $this->_param_type);
+                        call_user_func_array(array($stmt, 'bind_param'), $this->_ref_values($params));
+                    }
+                    $this->reset(TRUE);
+                    $stmt->execute();
+                    $total = $this->_dynamic_bind_results($stmt);
+                }
+                else
+                {
+                    $this->status(3);
+                    $this->reset(TRUE);
+                    $total = array();
+                }
+            }
+            else
+            {
+                if($result = $this->_mysql->query($query))
+                {
+                    $this->reset(TRUE);
+                    return $this->result($result);
+                }
+                else
+                {
+                    $this->status(3);
+                    $this->reset(TRUE);
+                    $total = array();
+                }
+            }
+
+            return count($total) === 1 ? $total[0]['total'] : 0;
+        }
+        else
+        {
+            return FALSE;
+        }
+    }
+
     public function where()
     {
         $params = func_get_args();
