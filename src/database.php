@@ -6,8 +6,8 @@
  * @category  Database Access
  * @package   Database
  * @author    Muhammad Sofyan <sofyan@octa7th.com>
- * @copyright Copyright (c) 2013
- * @license   http://opensource.org/licenses/gpl-3.0.html GNU Public License
+ * @copyright Copyright (c) 2013 - 2014
+ * @license   http://opensource.org/licenses/MIT
  * @version   1.1.0
  */
 
