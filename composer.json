@@ -1,0 +1,14 @@
+{
+    "name": "hexastudio/mysqli-wrapper",
+    "description": "Mysql database access class using mysqli",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Muhammad Sofyan",
+            "email": "octa7th@gmail.com"
+        }
+    ],
+    "require": {
+
+    }
+}
