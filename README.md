@@ -35,5 +35,11 @@ $db->where('state', 'Jakarta')
 // Equals to "SELECT FROM `student` WHERE `state` = 'Jakarta' ORDER BY `first_name` DESC LIMIT 0, 5;"
 ```
 
+## Changelog
+* v1.1.0 :
+    * Remove function check word
+    * Add new static method mysql_const
+    * Add new method get_total
+
 Now i'm still working on API documentation on my website.
 Feel free to contribute.
