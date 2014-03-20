@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<phpdox xmlns="http://phpdox.net/config">
+  <project name="Array Disk" source="${basedir}/src" workdir="${basedir}/build/phpdox">
+    <collector publiconly="false">
+      <include mask="*.php" />
+    </collector>
+    <generator output="${basedir}/build">
+      <build engine="html" enabled="true" output="api"/>
+    </generator>
+  </project>
+</phpdox>
