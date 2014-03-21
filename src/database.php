@@ -6,7 +6,7 @@
  * @category  Database Access
  * @package   Database
  * @author    Muhammad Sofyan <sofyan@octa7th.com>
- * @copyright Copyright (c) 2013 - 2014
+ * @copyright 2013 - 2014 Hexastudio
  * @license   http://opensource.org/licenses/MIT
  * @version   1.1.0
  */
@@ -16,91 +16,106 @@ class Database
     /**
      * Mysqli object
      * @var mysqli
+     * @since 0.9.5
      */
     private $_mysql;
 
     /**
      * Table name
+     * @var string
+     * @since 0.9.5
      */
     private $_table;
 
     /**
      * Last executed query
      * @var string
+     * @since 0.9.5
      */
     public $last_query;
 
     /**
      * WHERE condition storage
      * @var array
+     * @since 0.9.5
      */
     private $_where;
 
     /**
      * WHERE IN condition storage
      * @var array
+     * @since 0.9.5
      */
     private $_where_in;
 
     /**
      * SELECT fields storage
      * @var array
+     * @since 0.9.5
      */
     private $_select;
 
     /**
      * JOIN table and reference storage
      * @var array
+     * @since 0.9.5
      */
     private $_join;
 
     /**
      * ORDER result by table column and direction storage
      * @var array
+     * @since 0.9.5
      */
     private $_order;
 
     /**
      * number of result LIMIT to fetch storage
      * @var string
+     * @since 0.9.5
      */
     private $_limit;
 
     /**
      * Store parameter type if we using mysql prepare statement
      * @var string
+     * @since 0.9.5
      */
     private $_param_type;
 
     /**
      * Store parameter value if we using mysql prepare statement
      * @var array
+     * @since 0.9.5
      */
     private $_param_value;
 
     /**
      * Predefined and user setting storage
      * @var array
+     * @since 0.9.5
      */
     private $_setting;
 
     /**
-     * Contains array number and text of current status
-     * @var array
+     * Contains array number and text of current status.
      * 0 = OK / Everything works fine
      * 1 = Database connect error
      * 2 = Parameter construct is incorrect
      * 3 = Unknown error / Query Error
+     * @var array
+     * @since 0.9.5
      */
     private $_status;
 
     /**
      * Create new instance of mysql class
-     * @param string  $host
-     * @param string  $username
-     * @param string  $password
-     * @param string  $db
-     * @param integer $port
+     * @param string  $host     MySql hostname
+     * @param string  $username MySql username
+     * @param string  $password MySql password
+     * @param string  $db       MySql database name
+     * @param integer $port     MySql port
+     * @since 0.9.5
      */
     function __construct($host = NULL, $username = NULL, $password = NULL, $db = NULL, $port = 3306)
     {
@@ -128,8 +143,9 @@ class Database
     }
 
     /**
-     * Add default value for query storage properties,
+     * Add default value for query storage properties.
      * Initialize default value for object setting
+     * @since 0.9.5
      */
     private function _init()
     {
@@ -151,11 +167,12 @@ class Database
     }
 
     /**
-     * Define custom value for each setting,
+     * Define custom value for each setting.
      * Return setting value if $set is null
      * @param  string $key      : settings key
      * @param  mixed  $set      : value to set
      * @return mixed  $_setting : settings value
+     * @since 0.9.5
      */
     public function setting($key = NULL, $set = NULL)
     {
@@ -176,7 +193,14 @@ class Database
         }
     }
 
-    public function select()
+    /**
+     * Select field to fetch.
+     * See in phpunit test for more usage example
+     * @param  string $fields,...
+     * @return Database
+     * @since 0.9.5
+     */
+    public function select($fields)
     {
         $params = func_get_args();
 
@@ -227,6 +251,13 @@ class Database
         return $this;
     }
 
+    /**
+     * Get total row from a table.
+     * If table is null this method will return false.
+     * @param  string   $table_name
+     * @return int|bool Total row
+     * @since  1.1.0
+     */
     public function get_total($table_name = NULL)
     {
         if(is_string($table_name))
@@ -279,6 +310,12 @@ class Database
         }
     }
 
+    /**
+     * Set condition as data filter.
+     * See in phpunit test for more usage example
+     * @return Database
+     * @since 0.9.5
+     */
     public function where()
     {
         $params = func_get_args();
@@ -301,6 +338,12 @@ class Database
         return $this;
     }
 
+    /**
+     * Set condition as data filter.
+     * See in phpunit test for more usage example
+     * @return Database
+     * @since 0.9.5
+     */
     public function where_in()
     {
         $params = func_get_args();
@@ -313,6 +356,12 @@ class Database
         return $this;
     }
 
+    /**
+     * Set condition as data filter.
+     * See in phpunit test for more usage example
+     * @return Database
+     * @since 0.9.5
+     */
     public function like()
     {
         $params = func_get_args();
@@ -324,6 +373,12 @@ class Database
         return $this;
     }
 
+    /**
+     * Set condition as data filter.
+     * See in phpunit test for more usage example
+     * @return Database
+     * @since 0.9.5
+     */
     public function regexp()
     {
         $params = func_get_args();
@@ -345,7 +400,8 @@ class Database
      * @param  string $by         : column name
      * @param  string $direction  : ascending / descending ('ASC' / 'DESC')
      * @param  string $table_name : table name (use this if you use join method)
-     * @return object $this       : return the object for chaining method purpose
+     * @return Database
+     * @since 0.9.5
      */
     public function order($by, $direction = 'ASC', $table_name = NULL)
     {
@@ -359,6 +415,7 @@ class Database
     /**
      * Alias for 'order' method
      * @return object this, call function 'other'
+     * @since 0.9.5
      */
     public function sort()
     {
@@ -370,9 +427,10 @@ class Database
      * Function to create a limit of data rows
      * if parameters is empty, as default limit data up to 1000 rows
      *
-     * @param  int : Start position to fetch data pointer
-     * @param  int : Amount of rows to fetch
-     * @return object $this
+     * @param  int $start : Start position to fetch data pointer
+     * @param  int $count : Amount of rows to fetch
+     * @return Database
+     * @since 0.9.5
      */
     public function limit($start = 0, $count = 1000)
     {
@@ -380,6 +438,12 @@ class Database
         return $this;
     }
 
+    /**
+     * Use for joining table
+     * See in phpunit test for more usage example
+     * @return Database
+     * @since 0.9.5
+     */
     public function join()
     {
         $params = func_get_args();
@@ -387,38 +451,43 @@ class Database
 
         if( ! empty($params))
         {
+            $join_type = 'INNER';
+
             if(in_array($params[0], $join_method))
             {
                 $method = array_shift($params);
                 switch ($method)
                 {
                     case 'inner':
-                        $fun = 'INNER';
+                        $join_type = 'INNER';
                         break;
                     case 'left':
-                        $fun = 'LEFT';
+                        $join_type = 'LEFT';
                         break;
                     case 'right':
-                        $fun = 'RIGHT';
+                        $join_type = 'RIGHT';
                         break;
                     case 'outer':
-                        $fun = 'OUTER';
+                        $join_type = 'OUTER';
                         break;
                     default:
                         break;
                 }
             }
-            else
-            {
-                $fun = 'INNER';
-            }
-            $params[]      = $fun;
+            $params[]      = $join_type;
             $this->_join[] = $params;
         }
 
         return $this;
     }
 
+    /**
+     * Run raw query
+     * @param  string $query sql query
+     * @param  array  $data  Data to set in prepare statement
+     * @return mixed
+     * @since  1.1.0
+     */
     public function query($query, $data = array())
     {
         if(is_string($query))
@@ -510,6 +579,12 @@ class Database
         }
     }
 
+    /**
+     * Get data from table
+     * @param  string $table_name
+     * @return array
+     * @since 0.9.5
+     */
     public function get($table_name = NULL)
     {
         if(is_string($table_name))
@@ -560,6 +635,12 @@ class Database
         }
     }
 
+    /**
+     * Get value from mysql constanta
+     * @param  string $value
+     * @return mixed
+     * @since 0.9.5
+     */
     public function get_value($value = NULL)
     {
         $data = array();
@@ -622,6 +703,7 @@ class Database
      * @param  string $table_name The name of the table.
      * @param  array $data Data containing information for inserting into the DB.
      * @return boolean Boolean indicating whether the insert query was completed succesfully.
+     * @since 0.9.5
      */
     public function insert($table_name = NULL, $data = array())
     {
@@ -644,14 +726,22 @@ class Database
 
     /**
      * Returns the ID generated by a query on a table
-     * with a column having the AUTO_INCREMENT attribute.
+     * With a column having the AUTO_INCREMENT attribute.
      * @return int The value of the AUTO_INCREMENT field that was updated by the previous query
+     * @since 1.0.5
      */
     public function insert_id()
     {
         return $this->_mysql->insert_id;
     }
 
+    /**
+     * Update data in table
+     * @param  string $table_name
+     * @param  array  $data Data to update
+     * @return boolean indicating whether the update query was completed succesfully.
+     * @since 0.9.5
+     */
     public function update($table_name = NULL, $data = array())
     {
         if( is_string($table_name) && is_array($data) )
@@ -671,6 +761,12 @@ class Database
         }
     }
 
+    /**
+     * Delete data in table
+     * @param  string $table_name
+     * @return boolean indicating whether the delete query was completed succesfully.
+     * @since 0.9.7
+     */
     public function delete($table_name)
     {
         if( is_string($table_name) )
@@ -690,6 +786,7 @@ class Database
     /**
      * Build SELECT query from another method, concatenated as one query string
      * @return string : mysql query
+     * @since 0.9.7
      */
     private function _build_get_query()
     {
@@ -701,6 +798,11 @@ class Database
         return "SELECT $select \nFROM `$this->_table` $join $where $order $limit;";
     }
 
+    /**
+     * Build total query from current operation
+     * @return string sql query
+     * @since 1.1.0
+     */
     private function _build_total_query()
     {
         $select = "COUNT(*) AS total";
@@ -709,6 +811,11 @@ class Database
         return "SELECT $select \nFROM `$this->_table` $join $where;";
     }
 
+    /**
+     * Build select query from $_select field container
+     * @return string part SELECT of sql query
+     * @since 0.9.5
+     */
     private function _build_select()
     {
         $select = "*";
@@ -771,6 +878,11 @@ class Database
         return $select;
     }
 
+    /**
+     * Build where query from $_where condition container
+     * @return string part WHERE of sql query
+     * @since 0.9.5
+     */
     private function _build_where()
     {
         $where = '';
@@ -857,6 +969,11 @@ class Database
         return $where;
     }
 
+    /**
+     * Build join query from $_join container
+     * @return string part JOIN of sql query
+     * @since 0.9.5
+     */
     private function _build_join()
     {
         $join  = "";
@@ -876,6 +993,11 @@ class Database
         return $join;
     }
 
+    /**
+     * Build order query from $_order container
+     * @return string part ORDER of sql query
+     * @since 0.9.5
+     */
     private function _build_order()
     {
         $order = "";
@@ -906,6 +1028,11 @@ class Database
         return $order;
     }
 
+    /**
+     * Build insert query from current operation
+     * @return string sql query
+     * @since 0.9.5
+     */
     private function _build_insert_query($data)
     {
         $keys   = array();
@@ -934,6 +1061,11 @@ class Database
         return "INSERT INTO `$this->_table` ($key) VALUES ($val);";
     }
 
+    /**
+     * Build update query from current operation
+     * @return string sql query
+     * @since 0.9.5
+     */
     private function _build_update_query($data)
     {
         $limit   = $this->_limit === '' ? '' : "\nLIMIT $this->_limit";
@@ -959,6 +1091,11 @@ class Database
         return "UPDATE `$this->_table` \nSET $change \n$where;";
     }
 
+    /**
+     * Build update query from current operation
+     * @return string sql query
+     * @since 0.9.5
+     */
     public function _build_delete_query()
     {
         $where = $this->_build_where();
@@ -967,7 +1104,8 @@ class Database
 
     /**
      * Reset all the object properties that needed to build query to its default value
-     * @param  boolean $auto : Use $auto = TRUE after run a query
+     * @param boolean $auto : Use $auto = TRUE after run a query
+     * @since 0.9.5
      */
     public function reset($auto = FALSE)
     {
@@ -985,6 +1123,11 @@ class Database
         }
     }
 
+    /**
+     * Run query
+     * @return mixed Query result
+     * @since 0.9.7
+     */
     protected function _run_query($query)
     {
         if($this->setting('prepare'))
@@ -1027,8 +1170,9 @@ class Database
      * This helper method takes care of prepared statements' "bind_result" method
      * , when the number of variables to pass is unknown.
      *
-     * @param object $stmt Equal to the prepared statement object.
+     * @param  object $stmt Equal to the prepared statement object.
      * @return array The results of the SQL fetch.
+     * @since  0.9.5
      */
     protected function _dynamic_bind_results($stmt)
     {
@@ -1059,9 +1203,10 @@ class Database
 
     /**
      * Primitive way to get to from mysql result object
-     * @param  object   $result : mysql result object
-     * @param  int  $ref : mysql constant for displaying result data
-     * @return array    $array  : result data
+     * @param  object $result : mysql result object
+     * @param  int    $ref    : mysql constant for displaying result data
+     * @return array  $array  : result data
+     * @since 0.9.5
      */
     public function result($result, $ref = MYSQLI_ASSOC)
     {
@@ -1077,6 +1222,7 @@ class Database
      * Escape harmful characters which might affect a query.
      * @param  mixed $data : array / string to escape
      * @return mixed $data : escaped data
+     * @since 0.9.5
      */
     public function escape(&$data)
     {
@@ -1103,6 +1249,7 @@ class Database
      *
      * @param mixed $data value that you want to trim (reference)
      * @return mixed trimmed data
+     * @since 0.9.5
      */
     public static function trim(&$data)
     {
@@ -1124,12 +1271,13 @@ class Database
     }
 
     /**
-     * Function to get / set current status of this object
+     * Function to get / set current status of this object.
      * I'm using this for error handling
      * Status display as an array, status code and status text
      *
      * @param number $set Status to set
      * @return array current status of this object
+     * @since 0.9.5
      */
     public function status($set = NULL)
     {
@@ -1166,6 +1314,7 @@ class Database
      *
      * @param mixed $item Input to determine the type.
      * @return string The joined parameter types.
+     * @since 0.9.5
      */
     protected function _determine_type($item)
     {
@@ -1187,17 +1336,25 @@ class Database
         }
     }
 
+    /**
+     * Format mysql constant to this class standard format.
+     * So when build query this class will handle it without string
+     * @param  string $const Mysql constant in string
+     * @return string        Formatted mysql constant
+     * @since  1.1.0
+     */
     public static function mysql_const($const)
     {
         return "MYSQL_CONST_{$const}_MYSQL_CONST";
     }
 
     /**
-     * Helper function to check number
+     * Helper function to check number.
      * This also convert string that contains valid number
      *
      * @param mixed $value String or number to check
      * @return boolean is number
+     * @since 0.9.5
      */
     protected function _is_number(&$value)
     {
@@ -1218,6 +1375,9 @@ class Database
 
     /**
      * Reference is required for PHP 5.3+
+     * @param array
+     * @return array with reference key
+     * @since 0.9.5
      */
     protected function _ref_values($array)
     {
@@ -1236,6 +1396,7 @@ class Database
     /**
      * Destruct magic method.
      * Close mysqli connection if there's no error
+     * @since 0.9.5
      */
     public function __destruct()
     {
