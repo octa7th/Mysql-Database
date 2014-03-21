@@ -2,7 +2,7 @@
 
 <project name="name-of-project" default="build">
  <target name="build"
-   depends="prepare,lint,phploc,pdepend,phpmd-ci,phpcs-ci,phpcpd,phpdox,phpunit"/>
+   depends="prepare,lint,phploc,pdepend,phpmd-ci,phpcpd,phpdoc"/>
 
  <target name="build-parallel"
    depends="prepare,lint,tools-parallel,phpunit"/>
@@ -22,18 +22,13 @@
 
  <target name="clean" description="Cleanup build artifacts">
   <delete dir="${basedir}/build/api"/>
-  <delete dir="${basedir}/build/coverage"/>
   <delete dir="${basedir}/build/logs"/>
   <delete dir="${basedir}/build/pdepend"/>
-  <delete dir="${basedir}/build/phpdox"/>
  </target>
 
  <target name="prepare" depends="clean" description="Prepare for build">
   <mkdir dir="${basedir}/build/logs"/>
   <mkdir dir="${basedir}/build/pdepend"/>
-  <!-- <mkdir dir="${basedir}/build/api"/>
-  <mkdir dir="${basedir}/build/coverage"/>
-  <mkdir dir="${basedir}/build/phpdox"/> -->
  </target>
 
  <target name="lint" description="Perform syntax check of sourcecode files">
@@ -115,6 +110,14 @@
 
  <target name="phpdox" description="Generate API documentation using phpDox">
   <exec executable="phpdox"/>
+ </target>
+
+ <target name="phpdoc" description="Generate API documentation using phpDoc">
+  <exec executable="php">
+    <arg path="/home/octa/app/phpdoc.phar" />
+    <arg value="--target=build/api" />
+    <arg value="--directory=src" />
+  </exec>
  </target>
 
  <target name="phpunit" description="Run unit tests with PHPUnit">
