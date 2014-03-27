@@ -710,6 +710,7 @@ class Database
     {
         if(is_string($table_name))
         {
+            if($this->setting('cleanNull')) $this->clean_null($data);
             if($this->setting('escape')) $this->escape($data);
             if($this->setting('trim')) self::trim($data);
 
@@ -747,6 +748,7 @@ class Database
     {
         if( is_string($table_name) && is_array($data) )
         {
+            if($this->setting('cleanNull')) $this->clean_null($data);
             if($this->setting('escape')) $this->escape($data);
             if($this->setting('trim')) self::trim($data);
 
