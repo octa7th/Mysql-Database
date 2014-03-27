@@ -1375,6 +1375,25 @@ class Database
     }
 
     /**
+     * Clean Associative array if element's value is NULL
+     * @param array $data Associative array
+     * @return Database
+     * @since 1.2.0
+     */
+    public function clean_null(array &$data)
+    {
+        foreach($data as $key => $value)
+        {
+            if($value === NULL)
+            {
+                unset($data[$key]);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
      * Reference is required for PHP 5.3+
      * @param array
      * @return array with reference key
