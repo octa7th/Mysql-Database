@@ -1033,6 +1033,7 @@ class Database
 
     /**
      * Build insert query from current operation
+     * @param array $data New data to insert
      * @return string sql query
      * @since 0.9.5
      */
@@ -1066,6 +1067,7 @@ class Database
 
     /**
      * Build update query from current operation
+     * @param array $data New data to update
      * @return string sql query
      * @since 0.9.5
      */
@@ -1128,6 +1130,7 @@ class Database
 
     /**
      * Run query
+     * @param string $query sql query
      * @return mixed Query result
      * @since 0.9.7
      */
