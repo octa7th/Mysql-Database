@@ -40,6 +40,9 @@ $db->where('state', 'Jakarta')
     * Remove function check word
     * Add new static method mysql_const
     * Add new method get_total
+* v1.2.0 :
+    * Create new method clean_null
+    * Clean array data on method insert and update
 
 Now i'm still working on API documentation on my website.
 Feel free to contribute.
