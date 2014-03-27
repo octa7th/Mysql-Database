@@ -379,6 +379,7 @@ class Database
      * See in phpunit test for more usage example
      * @return Database
      * @since 0.9.5
+     * @unstable This method sometimes works not as you expected
      */
     public function regexp()
     {
@@ -488,6 +489,7 @@ class Database
      * @param  array  $data  Data to set in prepare statement
      * @return mixed
      * @since  1.1.0
+     * @unstable This method sometimes works not as you expected
      */
     public function query($query, $data = array())
     {
