@@ -162,7 +162,8 @@ class Database
             'trim'      => FALSE,
             'escape'    => TRUE,
             'prepare'   => TRUE,
-            'autoreset' => TRUE
+            'autoreset' => TRUE,
+            'cleanNull' => TRUE
         );
     }
 
