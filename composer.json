@@ -12,6 +12,7 @@
 
     },
     "require-dev": {
+		"fzaninotto/faker": "v1.3.0",
         "phpunit/phpunit": "4.0.4"
     }
 }
