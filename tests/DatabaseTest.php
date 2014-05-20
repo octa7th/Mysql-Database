@@ -29,8 +29,6 @@ class DatabaseTest extends PHPUnit_Framework_TestCase {
             'db_name' => 'classicmodels',
             'db_port' => 3306
         );
-        $command = "mysql -u {$this->dbConfig['db_user']} -p{$this->dbConfig['db_pass']} -h {$this->dbConfig['db_host']} < {$script_path}";
-        exec($command, $output);
 
         $this->db = new Database(
             $this->dbConfig['db_host'],
@@ -164,11 +162,6 @@ class DatabaseTest extends PHPUnit_Framework_TestCase {
         return $data;
     }
 
-    function __destruct()
-    {
-        $command = " echo 'drop database {$this->dbConfig['db_name']}' |  mysql -u {$this->dbConfig['db_user']} -p{$this->dbConfig['db_pass']} -h {$this->dbConfig['db_host']}";
-        exec($command, $output);
-    }
 
 }
  
