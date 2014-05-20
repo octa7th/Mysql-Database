@@ -2,7 +2,7 @@
 
 <project name="name-of-project" default="build">
  <target name="build"
-   depends="prepare,lint,phploc,pdepend,phpmd-ci,phpcpd,phpdoc"/>
+   depends="prepare,lint,phploc,pdepend,phpmd-ci,phpcpd,phpdoc,phpunit,destroydb"/>
 
  <target name="build-parallel"
    depends="prepare,lint,tools-parallel,phpunit"/>
@@ -120,7 +120,21 @@
   </exec>
  </target>
 
- <target name="phpunit" description="Run unit tests with PHPUnit">
+ <target name="createdb">
+   <exec executable="mysql" failonerror="true">
+     <arg value="--user=root" />
+     <arg value="--password=i3p1o2i3o2" />
+     <redirector input="tests/mysqlSampleDatabase.sql"></redirector>
+   </exec>
+ </target>
+ <target name="phpunit" depends="createdb" description="Run unit tests with PHPUnit">
   <exec executable="phpunit" failonerror="true"/>
  </target>
+    <target name="destroydb">
+        <exec executable="mysql">
+            <arg value="--user=root" />
+            <arg value="--password=i3p1o2i3o2" />
+            <arg value="-e drop database classicmodels" />
+        </exec>
+    </target>
 </project>
