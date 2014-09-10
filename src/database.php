@@ -758,8 +758,16 @@ class Database
             $query            = $this->_build_update_query($data);
             $this->last_query = $query;
 
-            $this->_run_query($query);
-            return $this->_mysql->affected_rows > 0;
+            $fire = $this->_run_query($query);
+
+            if($this->setting('prepare'))
+            {
+                return $fire;
+            }
+            else
+            {
+                return $this->_mysql->affected_rows > 0;
+            }
         }
         else
         {
