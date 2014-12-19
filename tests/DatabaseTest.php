@@ -62,6 +62,40 @@ class DatabaseTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals($dataTest, $data);
     }
 
+    public function testSelect()
+    {
+        $data = $this->db
+            ->select('customerName, phone')
+            ->limit(0,5)
+            ->get('customers');
+
+        $dataTest = $this->_run_query("SELECT customerName, phone FROM customers LIMIT 0,5");
+        $this->assertEquals($dataTest, $data);
+    }
+
+    /**
+     * @expectedException PHPUnit_Framework_Error
+     */
+    public function testSelectError()
+    {
+        $this->db
+            ->select('customerName, phone, nonExistField')
+            ->limit(0,5)
+            ->get('customers');
+    }
+
+    /**
+     * @expectedException PHPUnit_Framework_Error
+     */
+    public function testSelectWithPrepareError()
+    {
+        $this->db->setting('prepare', true);
+        $this->db
+            ->select('customerName, phone, nonExistField')
+            ->limit(0,5)
+            ->get('customers');
+    }
+
     public function testWhere()
     {
         $data = $this->db
@@ -143,6 +177,28 @@ class DatabaseTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals($dataTest, $data);
     }
 
+    public function testUpdateWithSameValue()
+    {
+        $data = $this->db
+            ->limit(0, 1)
+            ->get('customers');
+
+        if(count($data))
+        {
+            $new = $data[0];
+            $update = $this->db
+                ->where('customerNumber', $new['customerNumber'])
+                ->update('customers', $new);
+            $this->assertTrue($update);
+
+            $this->db->setting('prepare', true);
+            $update = $this->db
+                ->where('customerNumber', $new['customerNumber'])
+                ->update('customers', $new);
+            $this->assertTrue($update);
+        }
+    }
+
     private function _run_query($sql = '')
     {
         $data = array();
@@ -164,4 +220,3 @@ class DatabaseTest extends PHPUnit_Framework_TestCase {
 
 
 }
- 
