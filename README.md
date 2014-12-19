@@ -35,7 +35,7 @@ $db->where('state', 'Jakarta')
 // Equals to "SELECT FROM `student` WHERE `state` = 'Jakarta' ORDER BY `first_name` DESC LIMIT 0, 5;"
 ```
 
-## Changelog
+## Change log
 * v1.1.0 :
     * Remove function check word
     * Add new static method mysql_const
@@ -43,6 +43,10 @@ $db->where('state', 'Jakarta')
 * v1.2.0 :
     * Create new method clean_null
     * Clean array data on method insert and update
+* v1.3.0 :
+    * Add tests using phpunit
+* v1.3.1 :
+    * Trigger error when there's a query error
 
 Now i'm still working on API documentation on my website.
 Feel free to contribute.
