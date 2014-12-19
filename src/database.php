@@ -612,6 +612,7 @@ class Database
                 }
                 else
                 {
+                    trigger_error($this->_mysql->error, E_USER_ERROR);
                     $this->status(3);
                     $this->reset(TRUE);
                     return array();
@@ -626,6 +627,7 @@ class Database
                 }
                 else
                 {
+                    trigger_error($this->_mysql->error, E_USER_ERROR);
                     $this->status(3);
                     $this->reset(TRUE);
                     return array();
@@ -677,6 +679,7 @@ class Database
                 }
                 else
                 {
+                    trigger_error($this->_mysql->error, E_USER_ERROR);
                     $this->status(3);
                     $this->reset(TRUE);
                     $data = array();
@@ -691,6 +694,7 @@ class Database
                 }
                 else
                 {
+                    trigger_error($this->_mysql->error, E_USER_ERROR);
                     $this->status(3);
                     $this->reset(TRUE);
                     $data = array();
@@ -758,16 +762,7 @@ class Database
             $query            = $this->_build_update_query($data);
             $this->last_query = $query;
 
-            $fire = $this->_run_query($query);
-
-            if($this->setting('prepare'))
-            {
-                return $fire;
-            }
-            else
-            {
-                return $this->_mysql->affected_rows > 0;
-            }
+            return $this->_run_query($query);
         }
         else
         {
