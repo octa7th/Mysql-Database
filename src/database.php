@@ -160,7 +160,7 @@ class Database
 
         $this->_setting = array(
             'trim'      => FALSE,
-            'escape'    => TRUE,
+            'escape'    => FALSE,
             'prepare'   => TRUE,
             'autoreset' => TRUE,
             'cleanNull' => TRUE
