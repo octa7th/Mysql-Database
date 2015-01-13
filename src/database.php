@@ -8,7 +8,7 @@
  * @author    Muhammad Sofyan <sofyan@octa7th.com>
  * @copyright 2013 - 2014 Hexastudio
  * @license   http://opensource.org/licenses/MIT
- * @version   1.4.0
+ * @version   1.4.1
  */
 
 class Database
@@ -866,7 +866,7 @@ class Database
                     }
                     else
                     {
-                        if(in_array($s[2], $tjoin))
+                        if(in_array($s[2], $tjoin) || $s[2] === $table)
                         {
                             $sel[] = "`$s[2]`.$s0 AS '$s[1]'";
                         }
