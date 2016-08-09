@@ -1123,7 +1123,11 @@ class Database
 
         foreach ($data as $k => $v)
         {
-            if($this->setting('prepare'))
+            if(preg_match('/^MYSQL_CONST_(\w+)_MYSQL_CONST$/', $v, $regTest) === 1)
+            {
+                $changes[] = "`$k` = $regTest[1]";
+            }
+            else if($this->setting('prepare'))
             {
                 $changes[] = "`$k` = ?";
                 $this->_param_type   .= $this->_determine_type($v);
