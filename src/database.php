@@ -6,7 +6,7 @@
  * @category  Database Access
  * @package   Database
  * @author    Muhammad Sofyan <sofyan@octa7th.com>
- * @copyright 2013 - 2014 Hexastudio
+ * @copyright 2013 - 2017 Hexastudio
  * @license   http://opensource.org/licenses/MIT
  * @version   1.4.1
  */
@@ -954,8 +954,8 @@ class Database
 
                     if(preg_match('/^([<>]=?|<>)[^<>=]/', $w[1]) === 1)
                     {
-                        $op   = preg_replace('/^([<>]=?|<>)([^<>=].+)$/', '${1}', $w[1]);
-                        $w[1] = preg_replace('/^([<>]=?|<>)([^<>=].+)$/', '${2}', $w[1]);
+                        $op   = preg_replace('/^(<>|[<>]=?)([^<>=].*)$/', '${1}', $w[1]);
+                        $w[1] = preg_replace('/^(<>|[<>]=?)([^<>=].*)$/', '${2}', $w[1]);
                     }
                     else if(preg_match('/^%.+$/', $w[1]) === 1)
                     {
