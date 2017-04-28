@@ -8,7 +8,7 @@
  * @author    Muhammad Sofyan <sofyan@octa7th.com>
  * @copyright 2013 - 2017 Hexastudio
  * @license   http://opensource.org/licenses/MIT
- * @version   1.4.1
+ * @version   1.5.0
  */
 
 class Database
@@ -443,6 +443,7 @@ class Database
     /**
      * Use for joining table
      * See in phpunit test for more usage example
+     * param: [join_method,] join_table, primary_key, foreign_key [,foreign_table]
      * @return Database
      * @since 0.9.5
      */
@@ -1033,7 +1034,14 @@ class Database
 
             foreach ($this->_join as $j)
             {
-                $jo[] = "$j[3] JOIN `$j[0]` ON (`$j[0]`.`$j[1]` = `$table`.`$j[2]`)";
+                if(count($j) > 4)
+                {
+                    $jo[] = "$j[4] JOIN `$j[0]` ON (`$j[0]`.`$j[1]` = `$j[3]`.`$j[2]`)";
+                }
+                else
+                {
+                    $jo[] = "$j[3] JOIN `$j[0]` ON (`$j[0]`.`$j[1]` = `$table`.`$j[2]`)";
+                }
             }
 
             $join = "\n" . implode(' ', $jo);
