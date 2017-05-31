@@ -1369,6 +1369,11 @@ class Database
         return $this->_status;
     }
 
+    public function get_mysql_connection()
+    {
+        return $this->_mysql;
+    }
+
     /**
      * This method is needed for prepared statements. They require
      * the data type of the field to be bound with "i" s", etc.
