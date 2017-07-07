@@ -1102,7 +1102,7 @@ class Database
         if( ! empty($wo))
         {
             if (preg_match('/^\(*WHERE/i', $where)) {
-                $where .= "\nAND (" . implode(" OR ", $wo) . ")";
+                $where .= "\nOR (" . implode(" OR ", $wo) . ")";
             } else {
                 $where = "\nWHERE (" . implode(" OR ", $wo) . ")";
             }
