@@ -350,6 +350,34 @@ class Database
      * Set condition as data filter.
      * See in phpunit test for more usage example
      * @return Database
+     * @since 1.5.0
+     */
+    public function where_or()
+    {
+        $params = func_get_args();
+
+        if( ! empty($params))
+        {
+            if(count($params) >= 2)
+            {
+                if(is_array($params[1]))
+                {
+                    return $this->where_in($params[0], $params[1]);
+                }
+                else
+                {
+                    $this->_where_or[] = $params;
+                }
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * Set condition as data filter.
+     * See in phpunit test for more usage example
+     * @return Database
      * @since 0.9.5
      */
     public function where_in()
