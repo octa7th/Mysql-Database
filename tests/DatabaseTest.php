@@ -1,6 +1,6 @@
 <?php
 
-class DatabaseTest extends PHPUnit_Framework_TestCase {
+class DatabaseTest extends \PHPUnit\Framework\TestCase {
 
     /**
      * @var array
@@ -24,7 +24,7 @@ class DatabaseTest extends PHPUnit_Framework_TestCase {
         $script_path = dirname(__FILE__) . '/mysqlSampleDatabase.sql';
         $this->dbConfig = array(
             'db_user' => 'root',
-            'db_pass' => 'i3p1o2i3o2',
+            'db_pass' => '',
             'db_host' => 'localhost',
             'db_name' => 'classicmodels',
             'db_port' => 3306
@@ -74,7 +74,7 @@ class DatabaseTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @expectedException PHPUnit_Framework_Error
+     * @expectedException PHPUnit\Framework\Error\Error
      */
     public function testSelectError()
     {
@@ -85,7 +85,7 @@ class DatabaseTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @expectedException PHPUnit_Framework_Error
+     * @expectedException PHPUnit\Framework\Error\Error
      */
     public function testSelectWithPrepareError()
     {
@@ -102,7 +102,29 @@ class DatabaseTest extends PHPUnit_Framework_TestCase {
             ->where('city', 'NYC')
             ->get('customers');
         $this->assertCount(5, $data);
-        $dataTest = $this->_run_query("SELECT * FROM customers WHERE city = 'NYC'");
+        $dataTest = $this->_run_query("SELECT * FROM customers WHERE (city = 'NYC')");
+        $this->assertEquals($dataTest, $data);
+    }
+
+    public function testFewWhere()
+    {
+        $data = $this->db
+            ->where('city', 'NYC')
+            ->where('country', 'USA')
+            ->get('customers');
+        $this->assertCount(5, $data);
+        $dataTest = $this->_run_query("SELECT * FROM customers WHERE (city = 'NYC' AND country = 'USA')");
+        $this->assertEquals($dataTest, $data);
+    }
+
+    public function testWhereOr()
+    {
+        $data = $this->db
+            ->where('city', 'NYC')
+            ->where_or('city', 'Nantes')
+            ->get('customers');
+        $this->assertCount(7, $data);
+        $dataTest = $this->_run_query("SELECT * FROM customers WHERE (city = 'NYC') OR (city = 'Nantes')");
         $this->assertEquals($dataTest, $data);
     }
 
@@ -121,7 +143,7 @@ class DatabaseTest extends PHPUnit_Framework_TestCase {
         $data = $this->db->where_in('city', array('london', 'madrid', 'milan'))->get('customers');
         $this->assertCount(8, $data);
 
-        $dataTest = $this->_run_query("select * from customers where city in ('london', 'madrid', 'milan')");
+        $dataTest = $this->_run_query("select * from customers where (city in ('london', 'madrid', 'milan'))");
         $this->assertEquals($dataTest, $data);
     }
 
@@ -209,7 +231,7 @@ class DatabaseTest extends PHPUnit_Framework_TestCase {
 
         if($result instanceof mysqli_result)
         {
-            while($row = $result->fetch_array(MYSQL_ASSOC))
+            while($row = $result->fetch_array(MYSQLI_ASSOC))
             {
                 $data[] = $row;
             }

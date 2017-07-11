@@ -42,6 +42,13 @@ class Database
     private $_where;
 
     /**
+     * WHERE OR condition storage
+     * @var array
+     * @since 0.9.5
+     */
+    private $_where_or;
+
+    /**
      * WHERE IN condition storage
      * @var array
      * @since 0.9.5
@@ -332,6 +339,34 @@ class Database
                 else
                 {
                     $this->_where[] = $params;
+                }
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * Set condition as data filter.
+     * See in phpunit test for more usage example
+     * @return Database
+     * @since 1.5.0
+     */
+    public function where_or()
+    {
+        $params = func_get_args();
+
+        if( ! empty($params))
+        {
+            if(count($params) >= 2)
+            {
+                if(is_array($params[1]))
+                {
+                    return $this->where_in($params[0], $params[1]);
+                }
+                else
+                {
+                    $this->_where_or[] = $params;
                 }
             }
         }
@@ -938,6 +973,7 @@ class Database
         $table = $this->_table;
         $join  = ! empty($this->_join);
         $wh    = array();
+        $wo    = array();
 
         if( ! empty($this->_where))
         {
@@ -984,6 +1020,7 @@ class Database
                 }
             }
         }
+
         if( ! empty($this->_where_in))
         {
             foreach ($this->_where_in as $w)
@@ -1010,9 +1047,65 @@ class Database
                 }
             }
         }
+
         if( ! empty($wh))
         {
-            $where = "\nWHERE " . implode(" AND ", $wh);
+            $where = "\nWHERE (" . implode(" AND ", $wh) . ")";
+        }
+
+        if( ! empty($this->_where_or))
+        {
+            foreach ($this->_where_or as $w)
+            {
+                $l = count($w);
+
+                $w[0] = ($l === 3 && $join) ? "$w[2]`.`$w[0]"
+                    : ($l === 2 && $join  ? "$table`.`$w[0]"
+                        : $w[0]);
+
+                if($l >= 2)
+                {
+                    $op = '=';
+
+                    if(preg_match('/^([<>]=?|<>)[^<>=]/', $w[1]) === 1)
+                    {
+                        $op   = preg_replace('/^(<>|[<>]=?)([^<>=].*)$/', '${1}', $w[1]);
+                        $w[1] = preg_replace('/^(<>|[<>]=?)([^<>=].*)$/', '${2}', $w[1]);
+                    }
+                    else if(preg_match('/^%.+$/', $w[1]) === 1)
+                    {
+                        $op   = "LIKE";
+                        $w[1] .= "%";
+                    }
+                    else if(preg_match('/^(\^@).+$/', $w[1]) === 1)
+                    {
+                        $op   = "REGEXP";
+                        $w[1] = preg_replace('/^(\^@)(.+)$/', '${2}', $w[1]);
+                    }
+                    if($this->setting('prepare'))
+                    {
+                        if($this->setting('trim')) self::trim($w[1]);
+                        $this->_param_type   .= $this->_determine_type($w[1]);
+                        $this->_param_value[] = $w[1];
+                        $wo[] = "`$w[0]` $op ?";
+                    }
+                    else
+                    {
+                        if($this->setting('trim')) self::trim($w[1]);
+                        if($this->setting('escape')) $this->escape($w[1]);
+                        $wo[] = "`$w[0]` $op '$w[1]'";
+                    }
+                }
+            }
+        }
+
+        if( ! empty($wo))
+        {
+            if (preg_match('/^\(*WHERE/i', $where)) {
+                $where = "\nWHERE (" . implode(" OR ", $wo) . ")";
+            } else {
+                $where .= "\nOR (" . implode(" OR ", $wo) . ")";
+            }
         }
 
         return $where;
