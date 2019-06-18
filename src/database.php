@@ -1025,7 +1025,13 @@ class Database
         {
             foreach ($this->_where_in as $w)
             {
-                if(count($w) === 2)
+                $l = count($w);
+
+                $w[0] = ($l === 3 && $join) ? "$w[2]`.`$w[0]"
+                    : ($l === 2 && $join  ? "$table`.`$w[0]"
+                        : $w[0]);
+
+                if($l === 2)
                 {
                     if($this->setting('prepare'))
                     {
