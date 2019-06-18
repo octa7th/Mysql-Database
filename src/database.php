@@ -676,44 +676,44 @@ class Database
         }
     }
 
-	/**
-	 * @param null $table_name
-	 * @return bool|mysqli_result
-	 * @since
-	 */
-	public function run($table_name = NULL)
-	{
-		if(is_string($table_name))
-		{
-			$this->_table     = $table_name;
-			$query            = $this->_build_get_query($table_name);
-			$this->last_query = $query;
+    /**
+     * @param null $table_name
+     * @return bool|mysqli_result
+     * @since
+     */
+    public function run($table_name = NULL)
+    {
+        if(is_string($table_name))
+        {
+            $this->_table     = $table_name;
+            $query            = $this->_build_get_query($table_name);
+            $this->last_query = $query;
 
-			if($this->setting('prepare'))
-			{
-				return FALSE;
-			}
-			else
-			{
-				if($result = $this->_mysql->query($query))
-				{
-					$this->reset(TRUE);
-					return $result;
-				}
-				else
-				{
-					trigger_error($this->_mysql->error, E_USER_ERROR);
-					$this->status(3);
-					$this->reset(TRUE);
-					return FALSE;
-				}
-			}
-		}
-		else
-		{
-			return FALSE;
-		}
-	}
+            if($this->setting('prepare'))
+            {
+                return FALSE;
+            }
+            else
+            {
+                if($result = $this->_mysql->query($query))
+                {
+                    $this->reset(TRUE);
+                    return $result;
+                }
+                else
+                {
+                    trigger_error($this->_mysql->error, E_USER_ERROR);
+                    $this->status(3);
+                    $this->reset(TRUE);
+                    return FALSE;
+                }
+            }
+        }
+        else
+        {
+            return FALSE;
+        }
+    }
 
     /**
      * Get value from mysql constanta
