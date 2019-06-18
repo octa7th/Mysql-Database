@@ -8,7 +8,7 @@
  * @author    Muhammad Sofyan <sofyan@octa7th.com>
  * @copyright 2013 - 2019 Hexastudio
  * @license   http://opensource.org/licenses/MIT
- * @version   1.5.2
+ * @version   1.5.3
  */
 
 class Database
