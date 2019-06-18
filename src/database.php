@@ -338,10 +338,7 @@ class Database
                     {
                         return $this->where_in($params[0], $params[1], $params[2]);
                     }
-                    else
-                    {
-                        return $this->where_in($params[0], $params[1]);
-                    }
+                    return $this->where_in($params[0], $params[1]);
                 }
                 else
                 {
@@ -1037,7 +1034,7 @@ class Database
                     : ($l === 2 && $join  ? "$table`.`$w[0]"
                         : $w[0]);
 
-                if($l === 2)
+                if($l >= 2)
                 {
                     if($this->setting('prepare'))
                     {
