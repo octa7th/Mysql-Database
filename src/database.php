@@ -334,7 +334,14 @@ class Database
             {
                 if(is_array($params[1]))
                 {
-                    return $this->where_in($params[0], $params[1]);
+                    if (count($params > 2))
+                    {
+                        return $this->where_in($params[0], $params[1], $params[2]);
+                    }
+                    else
+                    {
+                        return $this->where_in($params[0], $params[1]);
+                    }
                 }
                 else
                 {
@@ -383,8 +390,7 @@ class Database
     public function where_in()
     {
         $params = func_get_args();
-
-        if(count($params) === 2)
+        if(count($params) >= 2)
         {
             $this->_where_in[] = $params;
         }
