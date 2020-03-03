@@ -877,7 +877,14 @@ class Database
      */
     private function _build_get_query()
     {
-        $select = $this->_build_select();
+        if (isset($GLOBALS['__debug']))
+        {
+            $select = $this->_build_select_debug();
+        }
+        else
+        {
+            $select = $this->_build_select();
+        }
         $join   = $this->_build_join();
         $where  = $this->_build_where();
         $order  = $this->_build_order();
@@ -952,12 +959,109 @@ class Database
                 }
                 else if($l === 1 && $join)
                 {
-                    $s0 = $s[0] === '*' ? '*' : "`$s[0]`";
-                    $sel[] = "`$table`.$s0";
+                    if (strpos($s[0], 'COUNT(') == 0)
+                    {
+                        $sel[] = $s[0];
+                    }
+                    else
+                    {
+                        $s0 = $s[0] === '*' ? '*' : "`$s[0]`";
+                        $sel[] = "`$table`.$s0";
+                    }
                 }
                 else if($l >= 2)
                 {
                     $sel[] = $s[0] === $s[1] ? "`$s[0]`" : "`$s[0]` AS '$s[1]'";
+                }
+            }
+            $select = implode(', ', $sel);
+        }
+        return $select;
+    }
+
+    private function _build_select_debug()
+    {
+        $select = "*";
+        $table  = $this->_table;
+        $join   = ! empty($this->_join);
+        $tjoin  = array();
+
+        foreach ($this->_join as $t)
+        {
+            $tjoin[] = $t[0];
+        }
+
+        if( ! empty($this->_select))
+        {
+            $sel = array();
+
+            foreach ($this->_select as $s)
+            {
+                $l = count($s);
+
+                if($l >= 2 && $join)
+                {
+                    $s0 = $s[0] === '*' ? '*' : "`$s[0]`";
+
+                    if($l === 2)
+                    {
+                        if($s[0] === $s[1] OR $table === $s[1])
+                        {
+
+                            if (strpos($s[0], 'COUNT(') == 0)
+                            {
+
+                                $sel[] = $s[0];
+                            }
+                            else {
+
+                                $sel[] = "`$table`.$s0";
+                            }
+                        }
+                        else if(in_array($s[1], $tjoin))
+                        {
+
+                            $sel[] = "`$s[1]`.$s0";
+                        }
+                        else
+                        {
+                            $sel[] = "`$table`.$s0 AS '$s[1]'";
+                        }
+                    }
+                    else
+                    {
+                        if(in_array($s[2], $tjoin) || $s[2] === $table)
+                        {
+                            $sel[] = "`$s[2]`.$s0 AS '$s[1]'";
+                        }
+                    }
+                }
+                else if($l === 1 && $join)
+                {
+
+                    if (strpos($s[0], 'COUNT(') == 0)
+                    {
+
+                        $sel[] = $s[0];
+                    }
+                    else
+                    {
+
+                        $s0 = $s[0] === '*' ? '*' : "`$s[0]`";
+                        $sel[] = "`$table`.$s0";
+                    }
+                }
+                else if($l >= 2)
+                {
+
+                    if (strpos($s[0], 'COUNT(') == 0)
+                    {
+                        $sel[] = $s[0];
+                    }
+                    else
+                    {
+                        $sel[] = $s[0] === $s[1] ? "`$s[0]`" : "`$s[0]` AS '$s[1]'";
+                    }
                 }
             }
             $select = implode(', ', $sel);
