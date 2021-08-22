@@ -334,7 +334,7 @@ class Database
             {
                 if(is_array($params[1]))
                 {
-                    if (count($params > 2))
+                    if (count($params) > 2)
                     {
                         return $this->where_in($params[0], $params[1], $params[2]);
                     }
