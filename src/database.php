@@ -917,9 +917,12 @@ class Database
         $join   = ! empty($this->_join);
         $tjoin  = array();
 
-        foreach ($this->_join as $t)
+        if (is_array($this->_join))
         {
-            $tjoin[] = $t[0];
+            foreach ($this->_join as $t)
+            {
+                $tjoin[] = $t[0];
+            }
         }
 
         if( ! empty($this->_select))
